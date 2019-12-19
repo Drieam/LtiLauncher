@@ -1,15 +1,15 @@
 # Lti Launcher
-An extraction layer to simplify the setup and launching of LTI tools. In the most basic form, the launcher launches the requestes tool in the context of the logged in user. The logged in user is fetched from a [OIDC](https://openid.net/connect/) server. Other contexts (like course / assignment) should be provided by the platform through a signed [JWT](https://jwt.io/) in the query parameter of the request.
+An extraction layer to simplify the setup and launching of LTI tools. In the most basic form, the launcher launches the requested tool in the context of the logged-in user. The logged-in user is fetched from a [OIDC](https://openid.net/connect/) server. Other contexts (like course / assignment) should be provided by the platform through a signed [JWT](https://jwt.io/) in the query parameter of the request.
 
 ### Setup flow
-Administrators can login on the admin interface of the launcher via fixed [basic http authentication](https://en.wikipedia.org/wiki/Basic_access_authentication).
+Administrators can log in on the admin interface of the launcher via fixed [basic HTTP authentication](https://en.wikipedia.org/wiki/Basic_access_authentication).
 
-In this interface the administrators can manage and add the available tools and setup the [OIDC](https://openid.net/connect/) server. The main setup of a platform will therefore consist of:
+In this interface, the administrators can manage and add the available tools and set up the [OIDC](https://openid.net/connect/) server. The main setup of a platform will, therefore, consist of:
 
 - **name** Name of the platform
-- **open_id_connect_service_url** The main url of the OIDC server
+- **open_id_connect_service_url** The main URL of the OIDC server
 - **open_id_client_id** The registered client id
-- **public_key_url** The url with a list of the allowed public keys for signing the context parameter(s). The canvas LMS has a [nice example](https://canvas.instructure.com/api/lti/security/jwks) of such an endpoint.
+- **public_key_url** The URL with a list of the allowed public keys for signing the context parameter(s). The canvas LMS has a [nice example](https://canvas.instructure.com/api/lti/security/jwks) of such an endpoint.
 
 For each tool, the launcher requires:
 
@@ -20,7 +20,7 @@ For each tool, the launcher requires:
 - **target_link_uri** The URL to perform the final launch at.
 - **icon_url** Some icon that will be shown in the platform.
 
-The available tools will be made available though an endpoint per platform. This will look something like:
+The available tools will be made available through an endpoint per platform. This will look something like:
 
 ```
 https://<platform_name>.lti-launcher.com/api/v1/tools
@@ -35,7 +35,7 @@ https://<platform_name>.lti-launcher.com/api/v1/tools
 ]
 ```
 
-The platform fetches the available tools from the endopint and shows those links to the user. The platform can optionally add additional context by adding the `context` query paramter. This paramter should be a signed JWT and the payload should match the LTI 1.3 format specification. So the JWT payload could be something like this:
+The platform fetches the available tools from the endpoint and shows those links to the user. The platform can optionally add additional context by adding the `context` query parameter. This parameter should be a signed JWT and the payload should match the LTI 1.3 format specification. So the JWT payload could be something like this:
 
 ```
 {
@@ -51,10 +51,10 @@ The platform fetches the available tools from the endopint and shows those links
 ```
 
 This will result in a link on the platform like this:
-`https://<platform_name>.lti-launcher.com/launch/<tool_client_id>?context=xxx.xxx.xxx`. If the user clicks this link, the tool wil open in either the current window or a new tab (so not in an iframe) and this is where the launcher kicks in.
+`https://<platform_name>.lti-launcher.com/launch/<tool_client_id>?context=xxx.xxx.xxx`. If the user clicks this link, the tool will open in either the current window or a new tab (so not in an iframe) and this is where the launcher kicks in.
 
 ### Launch flow
-1. The user navigates to the launcher specifying the platform, the tool and optional additional context
+1. The user navigates to the launcher specifying the platform, the tool, and optional additional context
 
        https://<platform_name>.lti-launcher.com/launch/<tool_client_id>?context=xxx.xxx.xxx
        
@@ -69,7 +69,7 @@ This will result in a link on the platform like this:
 
 3. The user logs in if needed and allows the launcher to access the user's data
 
-4. The user get redirected back to the launcher (specified `redirect_uri`)
+4. The user gets redirected back to the launcher (specified `redirect_uri`)
 
        https://<platform_name>.lti-launcher.com/callback
          ?id_token=<User information as specified by OIDC>
@@ -84,7 +84,7 @@ This will result in a link on the platform like this:
          &iss=lti_launcher.com
          &target_link_uri=<tool_target_link_uri>
          
-6. Tool generates a state, saves this in a cookie and redirects the user to the launcher auth url (tool should know this based on the `iss` parameter)
+6. The tool generates a state, saves this in a cookie and redirects the user to the launcher auth URL (tool should know this based on the `iss` parameter)
 
        https://<platform_name>.lti-launcher.com/auth
          ?scope=openid
@@ -103,7 +103,7 @@ This will result in a link on the platform like this:
    3. `login_hint` from cookie matches the `login_hint` from the parameters
    4. `nonce` is not used before
 
-   and then generates an autosubmit form to the tool's `target_link_url`
+   and then generates an auto-submit form to the tool's `target_link_url`
    
        <tool_target_link_url>
          ?id_token=<Signed JWT containing all launch information>
@@ -113,4 +113,4 @@ This will result in a link on the platform like this:
 Since cookies in iframes are known to give a lot of problems. This launcher does not accept being launched in an iframe. Adding support for iframes could be added later. See some thoughts in the [See the IMS roundtable video](https://youtu.be/WiLbbXPjX28?t=428).
 
 ## Hosting considerations
-This app has (or will have) a `Dockerfile` and `docker-compose` file to simplify the hosting setup. It will listen to a single port and requires an external postgres database. 
+This app has (or will have) a `Dockerfile` and `docker-compose` file to simplify the hosting setup. It will listen to a single port and requires an external Postgres database. 
