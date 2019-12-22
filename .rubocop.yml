@@ -1,0 +1,11 @@
+require:
+  - rubocop-performance
+  - rubocop-rails
+
+AllCops:
+  Exclude:
+    - app.rb
+
+Layout/LineLength:
+  Max: 120
+

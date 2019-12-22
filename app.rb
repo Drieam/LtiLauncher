@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # dev hint: shotgun app.rb
 require 'sinatra'
@@ -71,7 +72,6 @@ TOOL_PUBLIC_KEY = <<~RSA
   -----END PUBLIC KEY-----
 RSA
 
-
 ##
 # Student role
 # => https://a03b7c77.eu.ngrok.io/launch/cert?deployment_id=42&role=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student
@@ -82,12 +82,10 @@ RSA
 # Teacher role without PII
 # => https://a03b7c77.eu.ngrok.io/launch/cert?deployment_id=42&scope=openid&role=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty
 
-
 # Step 1 and 2:
 # The user navigates to the launcher specifying the platform, the tool, and optional additional context
 # The user gets redirected to the OIDC service matching the platform
 get '/launch/:tool_client_id' do
-
   # TODO: This should originate from the query parameters and it should be validated
   validated_context = {
     'https://purl.imsglobal.org/spec/lti/claim/context': {
@@ -100,12 +98,10 @@ get '/launch/:tool_client_id' do
     }
   }
 
-  validated_context.merge!(
-    "https://purl.imsglobal.org/spec/lti/claim/roles": [
-      params[:role]
-    ],
-    "https://purl.imsglobal.org/spec/lti/claim/deployment_id": params[:deployment_id],
-  )
+  validated_context[:"https://purl.imsglobal.org/spec/lti/claim/roles"] = [
+    params[:role]
+  ]
+  validated_context[:"https://purl.imsglobal.org/spec/lti/claim/deployment_id"] = params[:deployment_id]
 
   scope = params[:scope] || 'openid profile email phone address'
 
@@ -129,11 +125,10 @@ end
 # Step 3:
 # The user logs in if needed and allows the launcher to access the user's data
 
-
 # Step 4:
 # The user gets redirected back to the launcher (specified redirect_uri)
 get '/callback' do
-  state_payload, _headers = JWT.decode(params[:state], PRIVATE_KEY.public_key, true, { algorithm: 'RS256' })
+  state_payload, _headers = JWT.decode(params[:state], PRIVATE_KEY.public_key, true, algorithm: 'RS256')
 
   connection = Faraday.new(url: OPEN_ID_CONNECT_TOKEN_URL) do |faraday|
     faraday.request :url_encoded # form-encode POST params
@@ -142,17 +137,16 @@ get '/callback' do
     faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
   end
 
-  oidc_response = connection.post('', {
-    grant_type: 'authorization_code',
-    client_id: OPEN_ID_CLIENT_ID,
-    client_secret: OPEN_ID_CLIENT_SECRET,
-    code: params[:code],
-    redirect_uri: "#{DOMAIN}/callback2"
-  })
+  oidc_response = connection.post('',
+                                  grant_type: 'authorization_code',
+                                  client_id: OPEN_ID_CLIENT_ID,
+                                  client_secret: OPEN_ID_CLIENT_SECRET,
+                                  code: params[:code],
+                                  redirect_uri: "#{DOMAIN}/callback2")
 
   raise 'Invalid response from OIDC' unless oidc_response.success?
 
-  oidc_payload, _headers = JWT.decode(oidc_response.body['id_token'], nil, false, { algorithm: 'RS256' })
+  oidc_payload, _headers = JWT.decode(oidc_response.body['id_token'], nil, false, algorithm: 'RS256')
   state_payload['context'].merge!(oidc_payload.slice('picture', 'name', 'email', 'sub'))
   login_hint = JWT.encode(state_payload, PRIVATE_KEY, 'RS256')
 
@@ -163,7 +157,7 @@ get '/callback' do
   uri.query = {
     iss: ISSUER,
     login_hint: login_hint,
-    target_link_uri: TOOL_TARGET_LINK_URI,
+    target_link_uri: TOOL_TARGET_LINK_URI
     # lti_message_hint: 'xxx'
   }.to_query
   redirect uri
@@ -186,16 +180,16 @@ end
 # Step 6:
 # The tool generates a state, saves this in a cookie and redirects the user to the launcher auth URL (tool should know this based on the iss parameter)
 get '/auth' do
-  login_hint_payload, _headers = JWT.decode(params[:login_hint], PRIVATE_KEY.public_key, true, { algorithm: 'RS256' })
+  login_hint_payload, _headers = JWT.decode(params[:login_hint], PRIVATE_KEY.public_key, true, algorithm: 'RS256')
 
   raise 'Security Error, TOOL_TARGET_LINK_URI != redirect_uri' if TOOL_TARGET_LINK_URI != params['redirect_uri']
   raise 'Security Error, params[:login_hint] != cookies[:login_hint]' if params[:login_hint] != cookies[:login_hint]
+
   # TODO: check nonce is not used before
 
-
   payload = {
-    "https://purl.imsglobal.org/spec/lti/claim/message_type": "LtiResourceLinkRequest",
-    "https://purl.imsglobal.org/spec/lti/claim/version": "1.3.0",
+    "https://purl.imsglobal.org/spec/lti/claim/message_type": 'LtiResourceLinkRequest',
+    "https://purl.imsglobal.org/spec/lti/claim/version": '1.3.0',
     # "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
     #   "id": "348",
     #   "title": "Laagvliegen 1",
@@ -256,16 +250,16 @@ get '/auth' do
 end
 
 get '/jwks' do
-  json({
+  json(
     keys: [
       PUBLIC_JWK.export.merge(alg: 'RS256', use: 'sig')
     ]
-  })
+  )
 end
 
 # Prefetched oauth2 token
 post '/oauth2/token' do
   json({
 
-  })
+       })
 end
