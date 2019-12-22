@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 
 # dev hint: shotgun app.rb
-require 'bundler/setup'
-Bundler.require
-require 'active_support/core_ext/object/to_query'
+require 'sinatra'
+require 'sinatra/contrib'
+# require 'sinatra/contrib/all'
+# require 'active_support/core_ext/object/to_query'
 require 'active_support/all'
-require 'byebug'
+require 'faraday_middleware'
+require 'jwt'
 
 # Configuration
 # enable :sessions
