@@ -14,7 +14,8 @@ before do
   @nonces_store = []
 end
 
-
+# DOMAIN = 'http://localhost:9393'
+DOMAIN = 'https://a03b7c77.eu.ngrok.io'
 ISSUER = 'lti_launcher'
 # PRIVATE_KEY = OpenSSL::PKey::RSA.generate(2048)
 PRIVATE_KEY = OpenSSL::PKey::RSA.new <<~RSA
@@ -54,9 +55,31 @@ OPEN_ID_CONNECT_TOKEN_URL = 'https://dev-xlgx8cg4.auth0.com/oauth/token'
 OPEN_ID_CLIENT_ID = '16WTuSHVNEukJ1udo5U7RGf2P8WWnxCp'
 OPEN_ID_CLIENT_SECRET = '5LyEHZ0T6xS3Vw7JXs9IaSGgYpteW_OXIEbLkn_8ZiuoiFT56l_xHG1aaN1U1TuL'
 
-TOOL_OPEN_ID_CONNECT_INITIATION_URL = 'http://localhost:3000/lti/tools/1/login_initiations'
-TOOL_TARGET_LINK_URI = 'http://localhost:3000/lti/tools/1/deep_link_launches'
-# TOOL_CLIENT_ID = 'xxx'
+TOOL_OPEN_ID_CONNECT_INITIATION_URL = 'https://ltiadvantagevalidator.imsglobal.org/ltiplatform/oidcinitialize.html'
+TOOL_TARGET_LINK_URI = 'https://ltiadvantagevalidator.imsglobal.org/ltiplatform/oidcredirecturl.html'
+TOOL_PUBLIC_KEY = <<~RSA
+  -----BEGIN PUBLIC KEY-----
+  MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsW3eobPIj5LsyHcMGckV
+  SSC621uL+0zkeMoWfXfNmvTH+zt5WOeEIdz+X7fK+F+lO7ic5WdJEGmp9/cjAf0Z
+  6SsmnvvHlHV/xsWtJm4DiuuF2MAahRQ5QEkhaEdh5QM2vAYyc8Nfxe504vA3czuy
+  nrW9MsOdZHeVzF+zWhhEl+olC5fWA1rhTUPpdxuZ0opVIrGJtI/QYfndoN+7zTs/
+  4CXqG6WpB+AZio8j7c6fJLC7J33cpxB1+O+64Qbh+5sxz46cEByboAB8qerYCmcf
+  xxfBbwyySBBK5X77aNHWA01B1kpOQ2VB8YKQk+OrXsPgJobPkR9ONWa9DC9JjEdU
+  JwIDAQAB
+  -----END PUBLIC KEY-----
+RSA
+
+
+##
+# Student role
+# => https://a03b7c77.eu.ngrok.io/launch/cert?deployment_id=42&role=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student
+# Student role without PII
+# => https://a03b7c77.eu.ngrok.io/launch/cert?deployment_id=42&scope=openid&role=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student
+# Teacher role
+# => https://a03b7c77.eu.ngrok.io/launch/cert?deployment_id=42&role=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty
+# Teacher role without PII
+# => https://a03b7c77.eu.ngrok.io/launch/cert?deployment_id=42&scope=openid&role=http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty
+
 
 # Step 1 and 2:
 # The user navigates to the launcher specifying the platform, the tool, and optional additional context
@@ -75,6 +98,15 @@ get '/launch/:tool_client_id' do
     }
   }
 
+  validated_context.merge!(
+    "https://purl.imsglobal.org/spec/lti/claim/roles": [
+      params[:role]
+    ],
+    "https://purl.imsglobal.org/spec/lti/claim/deployment_id": params[:deployment_id],
+  )
+
+  scope = params[:scope] || 'openid profile email phone address'
+
   state_payload = {
     context: validated_context,
     tool_id: params[:tool_client_id]
@@ -83,8 +115,8 @@ get '/launch/:tool_client_id' do
   uri = URI(OPEN_ID_CONNECT_AUTHORIZE_URL)
   uri.query = {
     client_id: OPEN_ID_CLIENT_ID,
-    redirect_uri: 'http://localhost:9393/callback',
-    scope: 'openid profile email phone address',
+    redirect_uri: "#{DOMAIN}/callback",
+    scope: scope,
     response_type: 'code',
     state: JWT.encode(state_payload, PRIVATE_KEY, 'RS256'),
     nonce: SecureRandom.uuid
@@ -113,13 +145,13 @@ get '/callback' do
     client_id: OPEN_ID_CLIENT_ID,
     client_secret: OPEN_ID_CLIENT_SECRET,
     code: params[:code],
-    redirect_uri: 'http://localhost:9393/callback2'
+    redirect_uri: "#{DOMAIN}/callback2"
   })
 
   raise 'Invalid response from OIDC' unless oidc_response.success?
 
-  state_payload['oidc'], _headers = JWT.decode(oidc_response.body['id_token'], nil, false, { algorithm: 'RS256' })
-
+  oidc_payload, _headers = JWT.decode(oidc_response.body['id_token'], nil, false, { algorithm: 'RS256' })
+  state_payload['context'].merge!(oidc_payload.slice('picture', 'name', 'email', 'sub'))
   login_hint = JWT.encode(state_payload, PRIVATE_KEY, 'RS256')
 
   # Save login_hint to cookie to later valiate it
@@ -158,11 +190,20 @@ get '/auth' do
   raise 'Security Error, params[:login_hint] != cookies[:login_hint]' if params[:login_hint] != cookies[:login_hint]
   # TODO: check nonce is not used before
 
-  # Preflight context
-  payload = login_hint_payload['context']
 
-  # Add user data from OIDC flow
-  payload = payload.merge(login_hint_payload.fetch('oidc').slice('picture', 'name', 'email'))
+  payload = {
+    "https://purl.imsglobal.org/spec/lti/claim/message_type": "LtiResourceLinkRequest",
+    "https://purl.imsglobal.org/spec/lti/claim/version": "1.3.0",
+    # "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
+    #   "id": "348",
+    #   "title": "Laagvliegen 1",
+    #   "description": "sjoef?"
+    # },
+    "https://purl.imsglobal.org/spec/lti/claim/target_link_uri": TOOL_TARGET_LINK_URI
+  }
+
+  # Context from state
+  payload = payload.merge(login_hint_payload['context'])
 
   ## SEE LtiPlatform::AddSecurityToJwt of reference implementation
   # Issuer Identifier for the Issuer of the message i.e. the Platform
@@ -182,7 +223,7 @@ get '/auth' do
   # LTI user_id
   # user_id = @user ? @user.institutional_id : SecureRandom.hex(10)
   # @launch_data['sub'] = user_id
-  payload['sub'] = login_hint_payload.fetch('oidc').fetch('sub')
+  ## SET IN OIDC FLOW
 
   # String value used to associate a Client session with an ID Token, and to mitigate replay attacks. The nonce value is a case-sensitive string.
   # payload['nonce'] = @view_context.try(:nonce).presence || SecureRandom.hex(10)
