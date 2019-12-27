@@ -13,19 +13,21 @@
 ActiveRecord::Schema.define(version: 2019_12_27_160243) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
-  create_table "auth_servers", force: :cascade do |t|
+  create_table "auth_servers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name", null: false
     t.string "service_url", null: false
     t.string "client_id", null: false
+    t.string "client_secret", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name"], name: "index_auth_servers_on_name", unique: true
   end
 
-  create_table "tools", force: :cascade do |t|
-    t.bigint "auth_server_id", null: false
+  create_table "tools", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "auth_server_id", null: false
     t.string "client_id", null: false
     t.string "open_id_connect_initiation_url", null: false
     t.string "target_link_uri", null: false

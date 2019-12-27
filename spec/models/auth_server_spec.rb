@@ -20,6 +20,7 @@ RSpec.describe AuthServer, type: :model do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:service_url) }
     it { is_expected.to validate_presence_of(:client_id) }
+    it { is_expected.to validate_presence_of(:client_secret) }
     it { is_expected.to validate_uniqueness_of(:name) }
     it { is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000').for(:service_url) }
     it { is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar').for(:service_url) }

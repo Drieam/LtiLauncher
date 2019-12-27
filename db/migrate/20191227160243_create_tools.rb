@@ -2,8 +2,8 @@
 
 class CreateTools < ActiveRecord::Migration[6.0]
   def change
-    create_table :tools do |t|
-      t.belongs_to :auth_server, null: false, foreign_key: true, index: true
+    create_table :tools, id: :uuid do |t|
+      t.belongs_to :auth_server, null: false, foreign_key: true, index: true, type: :uuid
 
       # t.string :name, null: false
       t.string :client_id, null: false

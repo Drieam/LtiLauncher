@@ -11,7 +11,7 @@ class ToolDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     auth_server: Field::BelongsTo,
-    id: Field::Number,
+    id: Field::String,
     client_id: Field::String,
     open_id_connect_initiation_url: Field::String,
     target_link_uri: Field::String,

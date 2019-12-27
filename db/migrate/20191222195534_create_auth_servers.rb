@@ -2,10 +2,13 @@
 
 class CreateAuthServers < ActiveRecord::Migration[6.0]
   def change
-    create_table :auth_servers do |t|
+    enable_extension 'pgcrypto'
+
+    create_table :auth_servers, id: :uuid do |t|
       t.string :name, null: false
       t.string :service_url, null: false
       t.string :client_id, null: false
+      t.string :client_secret, null: false
 
       t.timestamps
     end

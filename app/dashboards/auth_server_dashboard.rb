@@ -11,7 +11,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
   # on pages throughout the dashboard.
   ATTRIBUTE_TYPES = {
     tools: Field::HasMany,
-    id: Field::Number,
+    id: Field::String,
     name: Field::String,
     service_url: Field::String,
     client_id: Field::String,
