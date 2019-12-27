@@ -1,0 +1,85 @@
+name: CI
+on: [push]
+jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: actions/cache@v1
+        id: cache
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-
+
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      # required to compile pg ruby gem
+      - name: install PostgreSQL client
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: sudo apt-get install libpq-dev
+
+      - name: Install gems
+        run: |
+          gem install bundler --no-doc
+          bundle install --jobs 4 --retry 3 --path vendor/bundle
+
+      - name: Run rubocop
+        run: bundle exec rubocop
+
+  rspec:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:11
+        ports:
+          # will assign a random free host port
+          - 5432/tcp
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: actions/cache@v1
+        id: cache
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-
+
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      # required to compile pg ruby gem
+      - name: install PostgreSQL client
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: sudo apt-get install libpq-dev
+
+      - name: Install gems
+        run: |
+          gem install bundler --no-doc
+          bundle install --jobs 4 --retry 3 --path vendor/bundle
+
+      - name: Run RSpec
+        env:
+          # use localhost for the host here because we have specified a container for the job.
+          # If we were running the job on the VM this would be postgres
+          DATABASE_HOST: localhost
+          DATABASE_USERNAME: postgres
+          DATABASE_PORT: ${{ job.services.postgres.ports[5432] }} # get randomly assigned published port
+          RAILS_ENV: test
+        run: |
+          bin/rake db:setup
+          bundle exec rspec
