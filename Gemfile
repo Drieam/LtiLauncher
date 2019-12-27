@@ -21,6 +21,12 @@ group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   # Testing framework
   gem 'rspec-rails'
+  # RSpec matchers
+  gem 'shoulda-matchers'
+  # Replacement for fixtures
+  gem 'factory_bot_rails'
+  # Generate fake data
+  gem 'ffaker'
 end
 
 group :development do

@@ -5,7 +5,11 @@ require:
 AllCops:
   Exclude:
     - app.rb
+    - db/schema.rb
 
 Layout/LineLength:
   Max: 120
+
+Style/Documentation:
+  Enabled: false
 
