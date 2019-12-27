@@ -12,6 +12,10 @@ RSpec.describe AuthServer, type: :model do
     it { is_expected.to have_db_index(:name).unique }
   end
 
+  describe 'database' do
+    it { is_expected.to have_many(:tools).inverse_of(:auth_server).dependent(:destroy) }
+  end
+
   describe 'validations' do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:service_url) }

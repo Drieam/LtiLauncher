@@ -14,3 +14,6 @@ Layout/LineLength:
 Style/Documentation:
   Enabled: false
 
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*.rb' # Specs just have large blocks
