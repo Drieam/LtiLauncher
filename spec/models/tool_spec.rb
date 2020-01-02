@@ -4,7 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Tool, type: :model do
   describe 'database' do
-    it { is_expected.to have_db_column(:auth_server_id).of_type(:integer).with_options(null: false, foreign_key: true) }
+    it { is_expected.to have_db_column(:id).of_type(:uuid).with_options(null: false) }
+    it { is_expected.to have_db_column(:auth_server_id).of_type(:uuid).with_options(null: false, foreign_key: true) }
     it { is_expected.to have_db_column(:client_id).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:open_id_connect_initiation_url).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:target_link_uri).of_type(:string).with_options(null: false) }

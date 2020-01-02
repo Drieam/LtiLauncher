@@ -7,5 +7,7 @@ Rails.application.routes.draw do
 
     root to: 'tools#index'
   end
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+
+  get '/launch/:tool_client_id', to: 'launches#show', as: :launch
+  get '/callback', to: 'launches#callback', as: :launch_callback
 end

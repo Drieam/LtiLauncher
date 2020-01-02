@@ -15,6 +15,10 @@ gem 'puma', '~> 4.1'
 # gem 'bcrypt', '~> 3.1.7'
 # Admin interface
 gem 'administrate', '~> 0.12.0'
+# JSON Web Tokens
+gem 'jwt', '~> 2.2.1'
+# HTTP/REST API client library.
+gem 'faraday_middleware', '~> 0.13.1'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -27,6 +31,10 @@ group :development, :test do
   gem 'factory_bot_rails'
   # Generate fake data
   gem 'ffaker'
+  # Clean the database between specs
+  gem 'database_cleaner'
+  # Stubbing of web requests
+  gem 'webmock'
 end
 
 group :development do

@@ -13,6 +13,6 @@ auth_server = AuthServer.create!(
 # Tool for certification suite
 auth_server.tools.create!(
   client_id: 'cert',
-  open_id_connect_initiation_url:  'https://ltiadvantagevalidator.imsglobal.org/ltiplatform/oidcinitialize.html',
+  open_id_connect_initiation_url: 'https://ltiadvantagevalidator.imsglobal.org/ltiplatform/oidcinitialize.html',
   target_link_uri: 'https://ltiadvantagevalidator.imsglobal.org/ltiplatform/oidcredirecturl.html'
 )
