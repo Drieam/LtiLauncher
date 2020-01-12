@@ -35,7 +35,7 @@ class LaunchesController < ApplicationController
       redirect_uri: launch_callback_url,
       scope: 'openid profile email phone address', # scope,
       response_type: 'code',
-      state: JWT.encode(state_payload, private_key, 'RS256'),
+      state: Keypair.jwt_encode(state_payload),
       nonce: SecureRandom.uuid
     }.to_query
 
@@ -44,7 +44,7 @@ class LaunchesController < ApplicationController
 
   def callback
     # Parse and validate the state param
-    state_payload, _headers = JWT.decode(params[:state], private_key.public_key, true, algorithm: 'RS256')
+    state_payload = Keypair.jwt_decode(params[:state])
 
     # Find the requested tool based on the state param
     tool = Tool.find_by!(client_id: state_payload['tool_client_id'])
@@ -53,7 +53,7 @@ class LaunchesController < ApplicationController
     connection = Faraday.new(url: tool.auth_server.service_url) do |faraday|
       faraday.request :url_encoded # form-encode POST params
       faraday.response :json
-      faraday.response :logger # log requests to $stdout
+      faraday.response :logger if Rails.env.development? # log requests to $stdout
       faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
     end
     oidc_response = connection.post('/oauth/token',
@@ -69,7 +69,7 @@ class LaunchesController < ApplicationController
 
     # Add user information to the state context
     state_payload['context'] = oidc_payload.slice('picture', 'name', 'email', 'sub')
-    login_hint = JWT.encode(state_payload, private_key, 'RS256')
+    login_hint = Keypair.jwt_encode(state_payload)
 
     # Save login_hint to cookie to later valiate it
     cookies[:login_hint] = login_hint
@@ -83,11 +83,5 @@ class LaunchesController < ApplicationController
       # lti_message_hint: 'xxx'
     }.to_query
     redirect_to uri.to_s
-  end
-
-  private
-
-  def private_key
-    OpenSSL::PKey::RSA.new(Rails.application.secrets.private_key)
   end
 end

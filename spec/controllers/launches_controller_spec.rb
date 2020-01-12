@@ -7,7 +7,6 @@ RSpec.describe LaunchesController, type: :controller do
   let(:auth_server) { tool.auth_server }
   let(:redirected_url) { URI(response.headers['Location']) }
   let(:redirected_url_params) { Rack::Utils.parse_nested_query(redirected_url.query) }
-  let(:private_key) { OpenSSL::PKey::RSA.new(Rails.application.secrets.private_key) }
 
   describe 'GET #new' do
     let(:redirected_state) do
@@ -60,7 +59,7 @@ RSpec.describe LaunchesController, type: :controller do
         )
       end
       it 'is encoded with the current private key' do
-        expect { JWT.decode(redirected_url_params['state'], private_key, true, algorithm: 'RS256') }.to_not raise_error
+        expect { Keypair.jwt_decode(redirected_url_params['state']) }.to_not raise_error
       end
     end
     context 'with unknown tool' do
@@ -72,7 +71,7 @@ RSpec.describe LaunchesController, type: :controller do
 
   describe 'GET #callback' do
     let(:state_payload) { { tool_client_id: tool.client_id } }
-    let(:state) { JWT.encode(state_payload, private_key, 'RS256') }
+    let(:state) { Keypair.jwt_encode(state_payload) }
     let(:code) { '1234abcd' }
     let(:oidc_id_token_payload) do
       {
@@ -96,9 +95,9 @@ RSpec.describe LaunchesController, type: :controller do
     end
 
     context 'with invalid state' do
-      let(:private_key) { OpenSSL::PKey::RSA.generate(2048) }
+      let(:state) { JWT.encode('foobar', nil, 'none') }
       it 'raises error' do
-        expect { get :callback, params: { code: code, state: state } }.to raise_error JWT::VerificationError
+        expect { get :callback, params: { code: code, state: state } }.to raise_error JWT::DecodeError
       end
     end
 
@@ -139,9 +138,7 @@ RSpec.describe LaunchesController, type: :controller do
           }
         }
       end
-      let(:expected_login_hint) do
-        JWT.encode(expected_login_hint_payload, private_key, 'RS256')
-      end
+      let(:expected_login_hint) { Keypair.jwt_encode(expected_login_hint_payload) }
 
       it 'exchanges the code for id_token' do
         expect(exchange_stub).to have_been_requested
@@ -149,7 +146,7 @@ RSpec.describe LaunchesController, type: :controller do
 
       it 'saves the generated login hint in the cookies' do
         expect(response.cookies['login_hint']).to be_present
-        payload, _headers = JWT.decode(response.cookies['login_hint'], private_key.public_key, true, algorithm: 'RS256')
+        payload = Keypair.jwt_decode(response.cookies['login_hint'])
         expect(payload.deep_symbolize_keys).to eq(expected_login_hint_payload)
       end
 

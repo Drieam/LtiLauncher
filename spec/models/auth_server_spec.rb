@@ -13,11 +13,12 @@ RSpec.describe AuthServer, type: :model do
     it { is_expected.to have_db_index(:name).unique }
   end
 
-  describe 'database' do
+  describe 'relations' do
     it { is_expected.to have_many(:tools).inverse_of(:auth_server).dependent(:destroy) }
   end
 
   describe 'validations' do
+    subject { build :auth_server }
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:service_url) }
     it { is_expected.to validate_presence_of(:client_id) }

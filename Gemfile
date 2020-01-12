@@ -19,6 +19,8 @@ gem 'administrate', '~> 0.12.0'
 gem 'jwt', '~> 2.2.1'
 # HTTP/REST API client library.
 gem 'faraday_middleware', '~> 0.13.1'
+# Generates attr_accessors that encrypt and decrypt attributes transparently
+gem 'attr_encrypted', '~> 3.1'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

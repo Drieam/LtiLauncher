@@ -15,11 +15,12 @@ RSpec.describe Tool, type: :model do
     it { is_expected.to have_db_index(:client_id).unique }
   end
 
-  describe 'database' do
+  describe 'relations' do
     it { is_expected.to belong_to(:auth_server).inverse_of(:tools) }
   end
 
   describe 'validations' do
+    subject { build :tool }
     it { is_expected.to validate_presence_of(:client_id) }
     it { is_expected.to validate_presence_of(:open_id_connect_initiation_url) }
     it { is_expected.to validate_presence_of(:target_link_uri) }
