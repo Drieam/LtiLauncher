@@ -1,6 +1,37 @@
 name: CI
 on: [push]
 jobs:
+  brakeman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: actions/cache@v1
+        id: cache
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gem-
+
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.6.x
+
+      # required to compile pg ruby gem
+      - name: install PostgreSQL client
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: sudo apt-get install libpq-dev
+
+      - name: Install gems
+        run: |
+          gem install bundler --no-doc
+          bundle install --jobs 4 --retry 3 --path vendor/bundle
+
+      - name: Run brakeman
+        run: bundle exec brakeman
+
   rubocop:
     runs-on: ubuntu-latest
     steps:
