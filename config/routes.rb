@@ -10,4 +10,5 @@ Rails.application.routes.draw do
 
   get '/launch/:tool_client_id', to: 'launches#show', as: :launch
   get '/callback', to: 'launches#callback', as: :launch_callback
+  resources :keypairs, only: :index, format: :json
 end
