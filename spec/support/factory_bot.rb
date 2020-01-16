@@ -7,5 +7,7 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     FactoryBot.lint
+    # Make sure to clean the database again
+    DatabaseCleaner.clean_with(:truncation)
   end
 end

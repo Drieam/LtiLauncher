@@ -31,7 +31,22 @@ module LtiLauncher
     # -- all .rb files in that directory are automatically loaded after loading
     # the framework and any gems in your application.
 
-    # Don't generate system test files.
-    config.generators.system_tests = nil
+    config.generators do |g|
+      # Don't generate system test files.
+      g.system_tests = nil
+      # Use UUID for primary keys
+      g.orm :active_record, primary_key_type: :uuid
+    end
+
+    # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+    config.force_ssl = secrets.force_ssl
+
+    # Setup the host / domain
+    config.action_controller.default_url_options = routes.default_url_options = config.default_url_options = {
+      host: secrets.domain,
+      port: secrets.domain.split(':').second,
+      protocol: secrets.force_ssl ? 'https' : 'http'
+    }
+    config.hosts = [secrets.domain]
   end
 end
