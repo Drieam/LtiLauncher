@@ -28,21 +28,10 @@ class LaunchesController < ApplicationController
       tool_client_id: tool.client_id
     }
 
-    uri = URI(tool.auth_server.service_url)
-    uri.path = '/authorize'
-    uri.query = {
-      client_id: tool.auth_server.client_id,
-      redirect_uri: launch_callback_url,
-      scope: 'openid profile email phone address', # scope,
-      response_type: 'code',
-      state: Keypair.jwt_encode(state_payload),
-      nonce: SecureRandom.uuid
-    }.to_query
-
-    redirect_to uri.to_s
+    redirect_to URI(tool.auth_server.authorize_url(state_payload: state_payload)).to_s
   end
 
-  def callback
+  def callback # rubocop:todo Metrics/AbcSize
     # Parse and validate the state param
     state_payload = Keypair.jwt_decode(params[:state])
 
@@ -50,38 +39,16 @@ class LaunchesController < ApplicationController
     tool = Tool.find_by!(client_id: state_payload['tool_client_id'])
 
     # Exchange the code param for an access token and id token
-    connection = Faraday.new(url: tool.auth_server.service_url) do |faraday|
-      faraday.request :url_encoded # form-encode POST params
-      faraday.response :json
-      faraday.response :logger if Rails.env.development? # log requests to $stdout
-      faraday.adapter Faraday.default_adapter # make requests with Net::HTTP
-    end
-    oidc_response = connection.post('/oauth/token',
-                                    grant_type: 'authorization_code',
-                                    client_id: tool.auth_server.client_id,
-                                    client_secret: tool.auth_server.client_secret,
-                                    code: params[:code],
-                                    redirect_uri: launch_callback_url)
-
-    # raise 'Invalid response from OIDC' unless oidc_response.success?
-
-    oidc_payload, _headers = JWT.decode(oidc_response.body['id_token'], nil, false, algorithm: 'RS256')
+    oidc_payload = tool.auth_server.exchange_code(params[:code])
 
     # Add user information to the state context
     state_payload['context'] = oidc_payload.slice('picture', 'name', 'email', 'sub')
-    login_hint = Keypair.jwt_encode(state_payload)
 
     # Save login_hint to cookie to later valiate it
+    login_hint = Keypair.jwt_encode(state_payload)
     cookies[:login_hint] = login_hint
 
     # Redirect to the tool OIDC initiation url
-    uri = URI(tool.open_id_connect_initiation_url)
-    uri.query = {
-      iss: Rails.application.secrets.issuer,
-      login_hint: login_hint,
-      target_link_uri: tool.target_link_uri
-      # lti_message_hint: 'xxx'
-    }.to_query
-    redirect_to uri.to_s
+    redirect_to URI(tool.signed_open_id_connect_initiation_url(login_hint: login_hint)).to_s
   end
 end

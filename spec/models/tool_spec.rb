@@ -42,4 +42,40 @@ RSpec.describe Tool, type: :model do
         .for(:target_link_uri)
     end
   end
+
+  describe 'methods' do
+    describe '#signed_open_id_connect_initiation_url' do
+      let(:tool) { build :tool }
+      let(:login_hint) { SecureRandom.uuid }
+      subject { tool.signed_open_id_connect_initiation_url(login_hint: login_hint) }
+      let(:query_params) { Rack::Utils.parse_nested_query(subject.query) }
+
+      it 'it returns a URI object' do
+        expect(subject).to be_a URI
+      end
+      it 'returns the base open_id_connect_initiation_url' do
+        expect(subject.to_s.split('?').first).to eq tool.open_id_connect_initiation_url
+      end
+
+      it 'sets the correct parameters' do
+        expect(query_params.keys).to match_array %w[
+          iss
+          login_hint
+          target_link_uri
+        ]
+      end
+
+      it 'sets the iss query parameter' do
+        expect(query_params.fetch('iss')).to eq 'lti_launcher'
+      end
+
+      it 'sets the login_hint query parameter' do
+        expect(query_params.fetch('login_hint')).to eq login_hint
+      end
+
+      it 'sets the target_link_uri query parameter' do
+        expect(query_params.fetch('target_link_uri')).to eq tool.target_link_uri
+      end
+    end
+  end
 end
