@@ -44,9 +44,9 @@ module LtiLauncher
     # Setup the host / domain
     config.action_controller.default_url_options = routes.default_url_options = config.default_url_options = {
       host: secrets.domain,
-      port: secrets.domain.split(':').second,
+      port: secrets.domain&.split(':')&.second,
       protocol: secrets.force_ssl ? 'https' : 'http'
     }
-    config.hosts = [secrets.domain]
+    config.hosts = [secrets.domain, secrets.domain&.split(':')&.first].uniq
   end
 end
