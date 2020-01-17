@@ -12,13 +12,29 @@ RSpec.describe LaunchesController, type: :controller do
     let(:redirected_state) do
       JWT.decode(redirected_url_params['state'], nil, false, algorithm: 'RS256').first.symbolize_keys
     end
+    # Make sure the nonce is not regenerated
+    before { allow(SecureRandom).to receive(:uuid).and_return '36407f38-e5b8-4b18-b640-c6aace509cc8' }
+
     context 'without extra params' do
-      # Make sure the nonce is not regenerated
-      before { allow(SecureRandom).to receive(:uuid).and_return '36407f38-e5b8-4b18-b640-c6aace509cc8' }
       before { get :show, params: { tool_client_id: tool.client_id } }
+      it 'redirects to the auth server authorize url' do
+        state_payload = { context: {}, tool_client_id: tool.client_id }
+        expect(redirected_url).to eq auth_server.authorize_url(state_payload: state_payload)
+      end
+    end
+    context 'with valid context param' do
+      let(:context_payload) do
+        {
+          'https://purl.imsglobal.org/spec/lti/claim/roles': [
+            'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student'
+          ]
+        }
+      end
+      let(:context) { JWT.encode context_payload, nil, 'none' }
+      before { get :show, params: { tool_client_id: tool.client_id, context: context } }
 
       it 'redirects to the auth server authorize url' do
-        state_payload = { tool_client_id: tool.client_id }
+        state_payload = { context: context_payload, tool_client_id: tool.client_id }
         expect(redirected_url).to eq auth_server.authorize_url(state_payload: state_payload)
       end
     end
@@ -82,6 +98,48 @@ RSpec.describe LaunchesController, type: :controller do
 
       it 'redirects to the tool signed_open_id_connect_initiation_url' do
         expect(redirected_url).to eq tool.signed_open_id_connect_initiation_url(login_hint: expected_login_hint)
+      end
+    end
+  end
+
+  describe 'GET #auth' do
+    let!(:login_hint_payload) do
+      {
+        tool_client_id: tool.client_id,
+        context: {
+          picture: FFaker::Avatar.image,
+          name: FFaker::Name.name,
+          email: FFaker::Internet.email,
+          sub: SecureRandom.hex
+        }
+      }
+    end
+    let!(:login_hint) { Keypair.jwt_encode(login_hint_payload) }
+    let!(:params) do
+      {
+        scope: 'openid',
+        response_type: 'id_token',
+        client_id: tool.client_id,
+        redirect_uri: tool.target_link_uri,
+        login_hint: login_hint,
+        state: SecureRandom.uuid,
+        response_mode: 'form_post',
+        nonce: SecureRandom.uuid,
+        prompt: 'none'
+      }
+    end
+
+    before { get :auth, params: params }
+
+    context 'with valid params' do
+      it 'sets the launch instance variable' do
+        expect(assigns(:launch)).to be_a Launch
+      end
+      it 'sets the correct tool on the launch' do
+        expect(assigns(:launch).target_link_uri).to eq tool.target_link_uri
+      end
+      it 'sets the context on the launch' do
+        expect(assigns(:launch).payload).to include login_hint_payload[:context]
       end
     end
   end

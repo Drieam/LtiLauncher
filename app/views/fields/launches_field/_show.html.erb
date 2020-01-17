@@ -1,0 +1,29 @@
+<table>
+  <thead>
+    <tr>
+      <th class="cell-label" scope="col" role="columnheader">Role</th>
+      <th class="cell-label" scope="col" role="columnheader">Context</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr class="js-table-row">
+      <td>Empty</td>
+      <td>Empty</td>
+      <td><%= link_to('🚀', launch_path(tool_client_id: field.resource.client_id), target: '_blank') %></td>
+    </tr>
+
+    <tr class="js-table-row">
+      <td>Student</td>
+      <td>Empty</td>
+      <td><%= link_to('🚀', launch_path(tool_client_id: field.resource.client_id, context: field.student_context), target: '_blank') %></td>
+    </tr>
+
+    <tr class="js-table-row">
+      <td>Teacher</td>
+      <td>Empty</td>
+      <td><%= link_to('🚀', launch_path(tool_client_id: field.resource.client_id, context: field.teacher_context), target: '_blank') %></td>
+    </tr>
+  </tbody>
+</table>

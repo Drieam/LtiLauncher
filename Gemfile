@@ -28,7 +28,9 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   # Testing framework
-  gem 'rspec-rails'
+  gem 'rspec-rails', '~> 4.0.0.beta3'
+  # Helpers to test rails controllers
+  gem 'rails-controller-testing'
   # RSpec matchers
   gem 'shoulda-matchers'
   # Replacement for fixtures
@@ -39,6 +41,8 @@ group :development, :test do
   gem 'database_cleaner'
   # Stubbing of web requests
   gem 'webmock'
+  # Travel in time in the specs
+  gem 'timecop'
 end
 
 group :development do

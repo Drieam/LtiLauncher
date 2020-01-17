@@ -1,0 +1,26 @@
+<h2>Launch payload</h2>
+<pre style="overflow-x: auto">
+  <%= JSON.pretty_generate(@launch.payload) %>
+</pre>
+
+<h2>OIDC State</h2>
+<pre style="overflow-x: auto">
+  <%= params[:state] %>
+</pre>
+
+<h2>ID Token</h2>
+<pre style="overflow-x: auto">
+  <%= @launch.id_token %>
+</pre>
+
+<%= form_tag @launch.target_link_uri, method: :post, id: 'ltiLaunchForm' do %>
+  <%= hidden_field_tag :state, params[:state] %>
+  <%= hidden_field_tag :id_token, @launch.id_token %>
+  <%= submit_tag 'Launch 🚀' %>
+<% end %>
+
+<!--<script language='javascript'>-->
+<!--  document.getElementById('ltiLaunchForm').submit();-->
+<!--</script>-->
+
+
