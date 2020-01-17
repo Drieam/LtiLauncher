@@ -10,6 +10,6 @@ jobs:
       - name: Login to GitHub Packages
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       - name: Build the tagged Docker image
-        run: docker build . --tag docker.pkg.github.com/drieam/ltilauncher/lti-launcher:${GITHUB_REF}
+        run: docker build . --tag docker.pkg.github.com/drieam/ltilauncher/lti-launcher:${GITHUB_REF##*/}
       - name: Push the tagged Docker image
-        run: docker push docker.pkg.github.com/drieam/ltilauncher/lti-launcher:${GITHUB_REF}
+        run: docker push docker.pkg.github.com/drieam/ltilauncher/lti-launcher:${GITHUB_REF##*/}
