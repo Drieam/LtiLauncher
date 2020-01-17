@@ -47,6 +47,7 @@ module LtiLauncher
       port: secrets.domain&.split(':')&.second,
       protocol: secrets.force_ssl ? 'https' : 'http'
     }
-    config.hosts = [secrets.domain, secrets.domain&.split(':')&.first].uniq
+
+    config.hosts = [secrets.domain&.split(':')&.first]
   end
 end

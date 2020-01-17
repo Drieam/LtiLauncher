@@ -114,3 +114,25 @@ Since cookies in iframes are known to give a lot of problems. This launcher does
 
 ## Hosting considerations
 This app has (or will have) a `Dockerfile` and `docker-compose` file to simplify the hosting setup. It will listen to a single port and requires an external Postgres database. 
+
+## IMS Certification Suite
+To run the tool against the certification suite, you need an IMS account and run the tool on a public url with SSL. At Drieam we use [ngrok](http://ngrok.io/) to expose our localhost:
+
+```bash
+ngrok http 9393 --region 'eu' --subdomain 'lti-launcher'
+DOMAIN=lti-launcher.eu.ngrok.io FORCE_SSL=1 bin/rails s
+```
+
+You can start the certification suite at [imsglobal.org](https://ltiadvantagevalidator.imsglobal.org/ltiplatform). This are the platform configuration details:
+
+Key | Value
+--- | -----
+Testing iss Value | lti_launcher
+OIDC Auth URL | https://lti-launcher.eu.ngrok.io/auth
+Platform Well-Known/JWKS URL | https://lti-launcher.eu.ngrok.io/keypairs
+OAuth2 Access Token URL | https://lti-launcher.eu.ngrok.io/oauth2/token
+Client Id | cert
+Custom aud |
+Deployment Id | a0f3de21-8f3b-48ae-a7a6-30185a91a956
+
+You can then initialize the required launches from the [admin interface](https://lti-launcher.eu.ngrok.io/admin).

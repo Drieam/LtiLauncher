@@ -16,7 +16,8 @@ class ToolDashboard < Administrate::BaseDashboard
     open_id_connect_initiation_url: Field::String,
     target_link_uri: Field::String,
     created_at: Field::DateTime,
-    updated_at: Field::DateTime
+    updated_at: Field::DateTime,
+    launches: LaunchesField
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -25,8 +26,9 @@ class ToolDashboard < Administrate::BaseDashboard
   # By default, it's limited to four items to reduce clutter on index pages.
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
-    auth_server
     client_id
+    target_link_uri
+    auth_server
   ].freeze
 
   # SHOW_PAGE_ATTRIBUTES
@@ -39,6 +41,7 @@ class ToolDashboard < Administrate::BaseDashboard
     target_link_uri
     created_at
     updated_at
+    launches
   ].freeze
 
   # FORM_ATTRIBUTES
