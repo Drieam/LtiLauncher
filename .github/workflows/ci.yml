@@ -15,9 +15,9 @@ jobs:
             ${{ runner.os }}-gem-
 
       - name: Setup Ruby
-        uses: actions/setup-ruby@v1
+        uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.6.x
+          ruby-version: 2.7
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client
@@ -46,9 +46,9 @@ jobs:
             ${{ runner.os }}-gem-
 
       - name: Setup Ruby
-        uses: actions/setup-ruby@v1
+        uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.6.x
+          ruby-version: 2.7
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client
@@ -89,9 +89,9 @@ jobs:
             ${{ runner.os }}-gem-
 
       - name: Setup Ruby
-        uses: actions/setup-ruby@v1
+        uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.6.x
+          ruby-version: 2.7
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client

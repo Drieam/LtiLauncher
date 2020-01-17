@@ -15,6 +15,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
     name: Field::String,
     service_url: Field::String,
     client_id: Field::String,
+    client_secret: Field::Password,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -49,6 +50,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
     name
     service_url
     client_id
+    client_secret
   ].freeze
 
   # COLLECTION_FILTERS
