@@ -16,6 +16,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
     service_url: Field::String,
     client_id: Field::String,
     client_secret: Field::Password,
+    context_jwks_url: Field::String,
     created_at: Field::DateTime,
     updated_at: Field::DateTime
   }.freeze
@@ -28,6 +29,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
   COLLECTION_ATTRIBUTES = %i[
     name
     service_url
+    context_jwks_url
     tools
   ].freeze
 
@@ -38,6 +40,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
     name
     service_url
     client_id
+    context_jwks_url
     tools
     created_at
     updated_at
@@ -51,6 +54,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
     service_url
     client_id
     client_secret
+    context_jwks_url
   ].freeze
 
   # COLLECTION_FILTERS

@@ -9,6 +9,7 @@ class CreateAuthServers < ActiveRecord::Migration[6.0]
       t.string :service_url, null: false
       t.string :client_id, null: false
       t.string :client_secret, null: false
+      t.string :context_jwks_url, null: false
 
       t.timestamps
     end

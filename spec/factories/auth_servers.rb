@@ -6,5 +6,6 @@ FactoryBot.define do
     service_url { FFaker::Internet.uri('https') }
     client_id { SecureRandom.hex }
     client_secret { SecureRandom.hex }
+    context_jwks_url { FFaker::Internet.uri('https') }
   end
 end

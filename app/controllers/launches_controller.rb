@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class LaunchesController < ApplicationController
-  def show # rubocop:todo Metrics/AbcSize
+  def show
     tool = Tool.find_by!(client_id: params[:tool_client_id])
 
-    # TODO: This should be validated
-    validated_context = params[:context].present? ? JWT.decode(params[:context], nil, false).first : {}
+    # Decode and validate the provided context (nil is also allowed)
+    validated_context = tool.auth_server.jwt_decode(params[:context])
 
     # Build the state with all information you need to proceed in the callback
     state_payload = {
@@ -28,7 +28,7 @@ class LaunchesController < ApplicationController
     oidc_payload = tool.auth_server.exchange_code(params[:code])
 
     # Add user information to the state context
-    state_payload['context'] = oidc_payload.slice('picture', 'name', 'email', 'sub')
+    state_payload['context'].merge! oidc_payload.slice('picture', 'name', 'email', 'sub')
 
     # Save login_hint to cookie to later valiate it
     login_hint = Keypair.jwt_encode(state_payload)

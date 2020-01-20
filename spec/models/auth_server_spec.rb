@@ -8,6 +8,8 @@ RSpec.describe AuthServer, type: :model do
     it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:service_url).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:client_id).of_type(:string).with_options(null: false) }
+    it { is_expected.to have_db_column(:client_secret).of_type(:string).with_options(null: false) }
+    it { is_expected.to have_db_column(:context_jwks_url).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:created_at).of_type(:datetime).with_options(null: false) }
     it { is_expected.to have_db_column(:updated_at).of_type(:datetime).with_options(null: false) }
     it { is_expected.to have_db_index(:name).unique }
@@ -23,9 +25,12 @@ RSpec.describe AuthServer, type: :model do
     it { is_expected.to validate_presence_of(:service_url) }
     it { is_expected.to validate_presence_of(:client_id) }
     it { is_expected.to validate_presence_of(:client_secret) }
+    it { is_expected.to validate_presence_of(:context_jwks_url) }
     it { is_expected.to validate_uniqueness_of(:name) }
     it { is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000').for(:service_url) }
     it { is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar').for(:service_url) }
+    it { is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000').for(:context_jwks_url) }
+    it { is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar').for(:context_jwks_url) }
   end
 
   describe 'methods' do
@@ -146,6 +151,48 @@ RSpec.describe AuthServer, type: :model do
         end
         it 'raises an error' do
           expect { auth_server.exchange_code(code) }.to raise_error Faraday::ClientError
+        end
+      end
+    end
+
+    describe '#jwt_decode' do
+      let(:auth_server) { build :auth_server }
+      subject { auth_server.jwt_decode(token) }
+      context 'when nil' do
+        let(:token) { nil }
+        it 'returns an empty hash' do
+          expect(subject).to eq({})
+        end
+      end
+      context 'when blank' do
+        let(:token) { '' }
+        it 'raises an error' do
+          expect { subject }.to raise_error JWT::DecodeError
+        end
+      end
+      context 'with valid keypair' do
+        let(:keypair) { build :keypair }
+        let(:payload) { SecureRandom.uuid }
+        let(:token) { keypair.jwt_encode(payload) }
+        let!(:request_stub) do
+          stub_request(:get, auth_server.context_jwks_url)
+            .to_return(status: 200, body: { keys: [keypair.public_jwk_export] }.to_json)
+        end
+
+        it 'returns the payload' do
+          expect(subject).to eq payload
+        end
+      end
+      context 'with invalid signature' do
+        let(:keypair) { build :keypair }
+        let(:token) { keypair.jwt_encode(foo: 'bar') }
+        let!(:request_stub) do
+          stub_request(:get, auth_server.context_jwks_url)
+            .to_return(status: 200, body: { keys: build_list(:keypair, 3).map(&:public_jwk_export) }.to_json)
+        end
+
+        it 'raises an error' do
+          expect { subject }.to raise_error JWT::DecodeError
         end
       end
     end
