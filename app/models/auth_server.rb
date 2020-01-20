@@ -4,18 +4,36 @@ class AuthServer < ApplicationRecord
   has_many :tools, inverse_of: :auth_server, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
-  validates :service_url, presence: true, format: URI.regexp(%w[http https])
+  validates :openid_configuration_url, format: URI.regexp(%w[http https]), allow_blank: true
+  validates :authorization_endpoint, presence: true, format: URI.regexp(%w[http https])
+  validates :token_endpoint, presence: true, format: URI.regexp(%w[http https])
   validates :client_id, presence: true
   validates :client_secret, presence: true
   validates :context_jwks_url, presence: true, format: URI.regexp(%w[http https])
+  validate { errors.add(:openid_configuration_url, :fetch_failed) if @configuration_fetch_failed }
+
+  ##
+  # You can set the authorization_endpoint and token_endpoint by providing a configuration url.
+  # It will then fetch the configuration and save the required endpoints in the database.
+  def openid_configuration_url=(new_url)
+    return if new_url.blank?
+
+    super
+    begin
+      response = faraday_connection.get(new_url).body
+      self.authorization_endpoint = response.authorization_endpoint
+      self.token_endpoint = response.token_endpoint
+    rescue NoMethodError, URI::Error, Faraday::Error => _e
+      @configuration_fetch_failed = true
+    end
+  end
 
   ##
   # Get the redirection url for the initial step of authorizing the current user.
   # The provided state_payload should be returned by the auth server.
   # In this way you can keep the state of that single launch (obviously).
-  def authorize_url(state_payload:) # rubocop:disable Metrics/MethodLength
-    URI(service_url).tap do |uri|
-      uri.path = '/authorize'
+  def authorize_url(state_payload:)
+    URI(authorization_endpoint).tap do |uri|
       uri.query = {
         client_id: client_id,
         redirect_uri: Rails.application.routes.url_helpers.launch_callback_url,
@@ -32,7 +50,7 @@ class AuthServer < ApplicationRecord
   # It returns the decoded content of the id_token.
   def exchange_code(code)
     oidc_response = faraday_connection.post(
-      '/oauth/token',
+      token_endpoint,
       grant_type: 'authorization_code',
       client_id: client_id,
       client_secret: client_secret,
@@ -61,7 +79,7 @@ class AuthServer < ApplicationRecord
 
   def faraday_connection
     @faraday_connection ||=
-      Faraday.new(url: service_url) do |faraday|
+      Faraday.new do |faraday|
         faraday.request :url_encoded # form-encode POST params
         faraday.response :json, parser_options: { object_class: OpenStruct }
         faraday.response :raise_error

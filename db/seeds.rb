@@ -6,7 +6,7 @@
 auth_server = AuthServer.create!(
   id: '5a90aa6a-e152-40ef-a1c6-60db9ce88e86',
   name: 'Auth0 Dev',
-  service_url: 'https://dev-xlgx8cg4.auth0.com',
+  openid_configuration_url: 'https://dev-xlgx8cg4.auth0.com/.well-known/openid-configuration',
   client_id: '16WTuSHVNEukJ1udo5U7RGf2P8WWnxCp',
   client_secret: '5LyEHZ0T6xS3Vw7JXs9IaSGgYpteW_OXIEbLkn_8ZiuoiFT56l_xHG1aaN1U1TuL',
   context_jwks_url: Rails.application.routes.url_helpers.keypairs_url

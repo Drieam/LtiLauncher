@@ -14,8 +14,13 @@ Layout/LineLength:
 Style/Documentation:
   Enabled: false
 
+Metrics/MethodLength:
+  Exclude:
+    - 'db/migrate/*.rb' # Migrations can be long
+
 Metrics/BlockLength:
   Exclude:
+    - 'db/migrate/*.rb' # Migrations can be long
     - 'spec/**/*.rb' # Specs just have large blocks
 
 Lint/AmbiguousBlockAssociation:

@@ -6,7 +6,9 @@ RSpec.describe AuthServer, type: :model do
   describe 'database' do
     it { is_expected.to have_db_column(:id).of_type(:uuid).with_options(null: false) }
     it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
-    it { is_expected.to have_db_column(:service_url).of_type(:string).with_options(null: false) }
+    it { is_expected.to have_db_column(:openid_configuration_url).of_type(:string).with_options(null: true) }
+    it { is_expected.to have_db_column(:authorization_endpoint).of_type(:string).with_options(null: false) }
+    it { is_expected.to have_db_column(:token_endpoint).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:client_id).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:client_secret).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:context_jwks_url).of_type(:string).with_options(null: false) }
@@ -20,20 +22,167 @@ RSpec.describe AuthServer, type: :model do
   end
 
   describe 'validations' do
+    before { stub_request(:get, /.*/).to_return(body: {}.to_json) } # Stub requests to openid configuration url
     subject { build :auth_server }
     it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_presence_of(:service_url) }
+    it { is_expected.to_not validate_presence_of(:openid_configuration_url) }
+    it { is_expected.to validate_presence_of(:authorization_endpoint) }
+    it { is_expected.to validate_presence_of(:token_endpoint) }
     it { is_expected.to validate_presence_of(:client_id) }
     it { is_expected.to validate_presence_of(:client_secret) }
     it { is_expected.to validate_presence_of(:context_jwks_url) }
     it { is_expected.to validate_uniqueness_of(:name) }
-    it { is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000').for(:service_url) }
-    it { is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar').for(:service_url) }
-    it { is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000').for(:context_jwks_url) }
-    it { is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar').for(:context_jwks_url) }
+    it 'validates format of openid_configuration_url' do
+      is_expected.to allow_value(nil, '', 'https://foo.bar/foobar', 'http://localhost:8000')
+        .for(:openid_configuration_url)
+      is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar')
+        .for(:openid_configuration_url)
+    end
+    it 'validates format of authorization_endpoint' do
+      is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000')
+        .for(:authorization_endpoint)
+      is_expected.to_not allow_value(nil, '', 'foobar.com', 'webcal://foobar.com/foobar')
+        .for(:authorization_endpoint)
+    end
+    it 'validates format of token_endpoint' do
+      is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000')
+        .for(:token_endpoint)
+      is_expected.to_not allow_value(nil, '', 'foobar.com', 'webcal://foobar.com/foobar')
+        .for(:token_endpoint)
+    end
+    it 'validates format of context_jwks_url' do
+      is_expected.to allow_value('https://foo.bar/foobar', 'http://localhost:8000')
+        .for(:context_jwks_url)
+      is_expected.to_not allow_value(nil, '', 'foobar.com', 'webcal://foobar.com/foobar')
+        .for(:context_jwks_url)
+    end
   end
 
   describe 'methods' do
+    describe '#openid_configuration_url=' do
+      let(:auth_server) do
+        create(:auth_server).tap do |server|
+          # Make sure the auth server has an existing configuration url without calling the endpoint
+          server.update_column :openid_configuration_url, 'https://original.url/openid-configuration' # rubocop:disable Rails/SkipsModelValidations
+        end
+      end
+      let(:subject) { auth_server.openid_configuration_url = new_url }
+
+      context 'when nil' do
+        let(:new_url) { nil }
+        it 'does not update the authorization_endpoint' do
+          expect { subject }.to_not change(auth_server, :authorization_endpoint)
+        end
+        it 'does not update the token_endpoint' do
+          expect { subject }.to_not change(auth_server, :token_endpoint)
+        end
+        it 'does not update the openid_configuration_url' do
+          expect { subject }.to_not change(auth_server, :openid_configuration_url)
+        end
+      end
+      context 'when blank' do
+        let(:new_url) { '' }
+        it 'does not update the authorization_endpoint' do
+          expect { subject }.to_not change(auth_server, :authorization_endpoint)
+        end
+        it 'does not update the token_endpoint' do
+          expect { subject }.to_not change(auth_server, :token_endpoint)
+        end
+        it 'does not update the openid_configuration_url' do
+          expect { subject }.to_not change(auth_server, :openid_configuration_url)
+        end
+      end
+      context 'when valid url' do
+        context 'and valid response' do
+          let(:new_url) { FFaker::Internet.uri('https') + '/.well-known/openid-configuration' }
+          let!(:request_stub) do
+            stub_request(:get, new_url)
+              .to_return(
+                body: {
+                  issuer: 'https://foobar.com/',
+                  authorization_endpoint: 'https://foo.bar/auth',
+                  token_endpoint: 'https://foo.bar/token'
+                }.to_json
+              )
+          end
+
+          it 'updates the authorization_endpoint' do
+            expect { subject }.to change(auth_server, :authorization_endpoint).to('https://foo.bar/auth')
+          end
+          it 'updates the token_endpoint' do
+            expect { subject }.to change(auth_server, :token_endpoint).to('https://foo.bar/token')
+          end
+          it 'updates the openid_configuration_url' do
+            expect { subject }.to change(auth_server, :openid_configuration_url).to(new_url)
+          end
+        end
+        context 'and random response' do
+          let(:new_url) { FFaker::Internet.uri('https') + '/.well-known/openid-configuration' }
+          let!(:request_stub) do
+            stub_request(:get, new_url)
+              .to_return(body: { foo: 'bar' }.to_json)
+          end
+
+          it 'updates the authorization_endpoint' do
+            expect { subject }.to change(auth_server, :authorization_endpoint).to nil
+          end
+          it 'updates the token_endpoint' do
+            expect { subject }.to change(auth_server, :token_endpoint).to nil
+          end
+          it 'updates the openid_configuration_url' do
+            expect { subject }.to change(auth_server, :openid_configuration_url).to(new_url)
+          end
+        end
+        context 'and failing response' do
+          let(:new_url) { FFaker::Internet.uri('https') + '/.well-known/openid-configuration' }
+          let!(:request_stub) do
+            stub_request(:get, new_url)
+              .to_return(status: 500, body: 'HELP!')
+          end
+
+          it 'does not update the authorization_endpoint' do
+            expect { subject }.to_not change(auth_server, :authorization_endpoint)
+          end
+          it 'does not update the token_endpoint' do
+            expect { subject }.to_not change(auth_server, :token_endpoint)
+          end
+          it 'updates the openid_configuration_url' do
+            expect { subject }.to change(auth_server, :openid_configuration_url).to(new_url)
+          end
+          it 'sets an error on the openid_configuration_url' do
+            auth_server.openid_configuration_url = new_url
+            auth_server.validate
+            expect(auth_server.errors.details[:openid_configuration_url]).to include(error: :fetch_failed)
+          end
+          it 'prevents the auth_server from being saved' do
+            subject
+            expect { auth_server.save! }.to raise_error ActiveRecord::RecordInvalid
+          end
+        end
+      end
+      context 'when invalid url' do
+        let(:new_url) { 'not a url' }
+        it 'does not update the authorization_endpoint' do
+          expect { subject }.to_not change(auth_server, :authorization_endpoint)
+        end
+        it 'does not update the token_endpoint' do
+          expect { subject }.to_not change(auth_server, :token_endpoint)
+        end
+        it 'updates the openid_configuration_url' do
+          expect { subject }.to change(auth_server, :openid_configuration_url).to(new_url)
+        end
+        it 'sets an error on the openid_configuration_url' do
+          auth_server.openid_configuration_url = new_url
+          auth_server.validate
+          expect(auth_server.errors.details[:openid_configuration_url]).to include(error: :fetch_failed)
+        end
+        it 'prevents the auth_server from being saved' do
+          subject
+          expect { auth_server.save! }.to raise_error ActiveRecord::RecordInvalid
+        end
+      end
+    end
+
     describe '#authorize_url' do
       let(:auth_server) { build :auth_server }
       let(:state_payload) { { 'foo' => SecureRandom.uuid } }
@@ -43,8 +192,8 @@ RSpec.describe AuthServer, type: :model do
       it 'it returns a URI object' do
         expect(subject).to be_a URI::HTTPS
       end
-      it 'returns the base service_url' do
-        expect(subject.to_s.split('?').first).to eq "#{auth_server.service_url}/authorize"
+      it 'returns the base authorization_endpoint' do
+        expect(subject.to_s.split('?').first).to eq auth_server.authorization_endpoint
       end
       it 'sets the correct query parameters' do
         expect(query_params.keys).to match_array %w[
@@ -110,7 +259,7 @@ RSpec.describe AuthServer, type: :model do
 
       context 'with successfull exchange' do
         let!(:exchange_stub) do
-          stub_request(:post, "#{auth_server.service_url}/oauth/token")
+          stub_request(:post, auth_server.token_endpoint)
             .with(
               headers: {
                 'Content-Type' => 'application/x-www-form-urlencoded'
@@ -146,7 +295,7 @@ RSpec.describe AuthServer, type: :model do
       end
       context 'with failed exchange' do
         let!(:exchange_stub) do
-          stub_request(:post, "#{auth_server.service_url}/oauth/token")
+          stub_request(:post, auth_server.token_endpoint)
             .to_return(body: 'HELP', status: 500)
         end
         it 'raises an error' do

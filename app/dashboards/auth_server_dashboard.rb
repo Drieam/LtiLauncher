@@ -13,7 +13,9 @@ class AuthServerDashboard < Administrate::BaseDashboard
     tools: Field::HasMany,
     id: Field::String,
     name: Field::String,
-    service_url: Field::String,
+    openid_configuration_url: Field::String,
+    authorization_endpoint: Field::String,
+    token_endpoint: Field::String,
     client_id: Field::String,
     client_secret: Field::Password,
     context_jwks_url: Field::String,
@@ -28,7 +30,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
     name
-    service_url
+    authorization_endpoint
     context_jwks_url
     tools
   ].freeze
@@ -38,7 +40,9 @@ class AuthServerDashboard < Administrate::BaseDashboard
   SHOW_PAGE_ATTRIBUTES = %i[
     id
     name
-    service_url
+    openid_configuration_url
+    authorization_endpoint
+    token_endpoint
     client_id
     context_jwks_url
     tools
@@ -51,7 +55,7 @@ class AuthServerDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
     name
-    service_url
+    openid_configuration_url
     client_id
     client_secret
     context_jwks_url
