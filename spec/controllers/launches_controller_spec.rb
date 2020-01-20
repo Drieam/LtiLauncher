@@ -30,12 +30,32 @@ RSpec.describe LaunchesController, type: :controller do
           ]
         }
       end
-      let(:context) { JWT.encode context_payload, nil, 'none' }
+      let(:keypair) { build :keypair }
+      let(:context) { keypair.jwt_encode(context_payload) }
+      let!(:request_stub) do
+        stub_request(:get, auth_server.context_jwks_url)
+          .to_return(status: 200, body: { keys: [keypair.public_jwk_export] }.to_json)
+      end
       before { get :show, params: { tool_client_id: tool.client_id, context: context } }
 
       it 'redirects to the auth server authorize url' do
         state_payload = { context: context_payload, tool_client_id: tool.client_id }
         expect(redirected_url).to eq auth_server.authorize_url(state_payload: state_payload)
+      end
+    end
+    context 'with invalid context signature' do
+      let(:keypair) { build :keypair }
+      let(:context) { keypair.jwt_encode(foo: 'bar') }
+
+      let!(:request_stub) do
+        stub_request(:get, auth_server.context_jwks_url)
+          .to_return(status: 200, body: { keys: build_list(:keypair, 3).map(&:public_jwk_export) }.to_json)
+      end
+
+      it 'raises an error' do
+        expect do
+          get :show, params: { tool_client_id: tool.client_id, context: context }
+        end.to raise_error JWT::DecodeError
       end
     end
     context 'with unknown tool' do
@@ -46,7 +66,14 @@ RSpec.describe LaunchesController, type: :controller do
   end
 
   describe 'GET #callback' do
-    let(:state_payload) { { tool_client_id: tool.client_id } }
+    let(:state_context) do
+      {
+        'https://purl.imsglobal.org/spec/lti/claim/roles': [
+          'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student'
+        ]
+      }
+    end
+    let(:state_payload) { { tool_client_id: tool.client_id, context: state_context } }
     let(:state) { Keypair.jwt_encode(state_payload) }
     let(:code) { '1234abcd' }
     let(:oidc_id_token_payload) do
@@ -81,6 +108,11 @@ RSpec.describe LaunchesController, type: :controller do
         {
           tool_client_id: tool.client_id,
           context: {
+            # From state context
+            'https://purl.imsglobal.org/spec/lti/claim/roles': [
+              'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student'
+            ],
+            # From oidc
             picture: oidc_id_token_payload['picture'],
             name: oidc_id_token_payload['name'],
             email: oidc_id_token_payload['email'],

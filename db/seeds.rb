@@ -8,7 +8,8 @@ auth_server = AuthServer.create!(
   name: 'Auth0 Dev',
   service_url: 'https://dev-xlgx8cg4.auth0.com',
   client_id: '16WTuSHVNEukJ1udo5U7RGf2P8WWnxCp',
-  client_secret: '5LyEHZ0T6xS3Vw7JXs9IaSGgYpteW_OXIEbLkn_8ZiuoiFT56l_xHG1aaN1U1TuL'
+  client_secret: '5LyEHZ0T6xS3Vw7JXs9IaSGgYpteW_OXIEbLkn_8ZiuoiFT56l_xHG1aaN1U1TuL',
+  context_jwks_url: Rails.application.routes.url_helpers.keypairs_url
 )
 
 # Tool for certification suite

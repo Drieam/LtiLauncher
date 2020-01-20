@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 2020_01_02_180925) do
     t.string "service_url", null: false
     t.string "client_id", null: false
     t.string "client_secret", null: false
+    t.string "context_jwks_url", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name"], name: "index_auth_servers_on_name", unique: true

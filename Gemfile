@@ -21,6 +21,8 @@ gem 'administrate', '~> 0.12.0'
 gem 'jwt', '~> 2.2.1'
 # HTTP/REST API client library.
 gem 'faraday_middleware', '~> 0.13.1'
+# Cache HTTP responses
+gem 'faraday-http-cache', '~> 2.0'
 # Generates attr_accessors that encrypt and decrypt attributes transparently
 gem 'attr_encrypted', '~> 3.1'
 

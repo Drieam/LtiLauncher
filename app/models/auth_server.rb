@@ -7,6 +7,7 @@ class AuthServer < ApplicationRecord
   validates :service_url, presence: true, format: URI.regexp(%w[http https])
   validates :client_id, presence: true
   validates :client_secret, presence: true
+  validates :context_jwks_url, presence: true, format: URI.regexp(%w[http https])
 
   ##
   # Get the redirection url for the initial step of authorizing the current user.
@@ -40,6 +41,20 @@ class AuthServer < ApplicationRecord
     )
 
     JWT.decode(oidc_response.body.id_token, nil, false, algorithm: 'RS256').first
+  end
+
+  ##
+  # Validate the token against the jwks from the `context_jwks_url`.
+  def jwt_decode(token)
+    return {} if token.nil?
+
+    JWT.decode(
+      token,
+      nil,
+      true,
+      algorithm: Keypair::ALGORITHM,
+      jwks: JwkUrlLoader.new(context_jwks_url)
+    ).first
   end
 
   private

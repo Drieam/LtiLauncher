@@ -46,11 +46,8 @@ class Keypair < ApplicationRecord
 
   # Decodes the payload and verifies the signature against the current valid keypairs
   def self.jwt_decode(id_token)
-    JWT.decode(id_token, nil, true, algorithm: ALGORITHM) do |header, _payload|
-      next unless header.key?('kid')
-
-      valid.find_by(jwk_kid: header['kid'])&.public_key
-    end.first
+    jwks = { keys: valid.map(&:public_jwk_export) }
+    JWT.decode(id_token, nil, true, algorithm: ALGORITHM, jwks: jwks).first
   end
 
   # Encodes the payload with this keypair
