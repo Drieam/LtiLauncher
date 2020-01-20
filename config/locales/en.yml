@@ -1,0 +1,5 @@
+en:
+  activerecord:
+    errors:
+      messages:
+        fetch_failed: Failed to fetch data from the specified endpoint
