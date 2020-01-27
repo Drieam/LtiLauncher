@@ -25,12 +25,19 @@ auth0_auth_server.tools.create!(
 # The configuration endpoint is not publicly available so make sure your IP is whitelisted @ SURF
 # To create the auth server, set the environment variable
 if ENV.key?('SURF_OIDC_CLIENT_SECRET')
-  AuthServer.create!(
+  surf_auth_server = AuthServer.create!(
     id: 'f6837576-9bb1-4a4d-bd77-85f2ee66bb87',
     name: 'Surf OIDC Test',
     openid_configuration_url: 'https://oidc.dev.dlo.surf.nl/auth/realms/dlo/.well-known/openid-configuration',
     client_id: 'lti-launcher',
     client_secret: ENV.fetch('SURF_OIDC_CLIENT_SECRET'),
     context_jwks_url: Rails.application.routes.url_helpers.keypairs_url
+  )
+
+  surf_auth_server.tools.create!(
+    id: 'ee9bea7c-189e-4236-813e-66e88287e2a8',
+    client_id: 'lti-ri',
+    open_id_connect_initiation_url: 'https://lti-ri.imsglobal.org/lti/tools/710/login_initiations',
+    target_link_uri: 'https://lti-ri.imsglobal.org/lti/tools/710/deep_link_launches'
   )
 end
