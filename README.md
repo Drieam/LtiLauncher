@@ -113,7 +113,26 @@ This will result in a link on the platform like this:
 Since cookies in iframes are known to give a lot of problems. This launcher does not accept being launched in an iframe. Adding support for iframes could be added later. See some thoughts in the [See the IMS roundtable video](https://youtu.be/WiLbbXPjX28?t=428).
 
 ## Hosting considerations
-This app has (or will have) a `Dockerfile` and `docker-compose` file to simplify the hosting setup. It will listen to a single port and requires an external Postgres database. 
+This app has a `Dockerfile` file to simplify the hosting setup. The `Dockerfile` is intended for production and requires the following environment variables:
+ 
+- **DATABASE_URL** The app need access to an external postgres database. This URL should include the username and password.
+- **DOMAIN** The base domain of the app (for example `lti-launcher.com`).
+- **FORCE_SSL** Set to `1` if the app runs on a secured endpoint.
+- **PORT** Optionally change the port the container listens to (default 9393).
+ 
+Once the app is fired up, you need to make sure to run the database migrations. So not only the first time you start the app but every time the version has changed since there could be new migrations. To run the migrations you should run `bin/rake db:migrate` inside the container.
+
+### Ready for use docker image
+If you create a release in GitHub, the GitHub actions will build and publish that version to the GitHub docker registry. That way, you don't have to build the image yourself and you can just [download it from the registry](https://github.com/Drieam/LtiLauncher/packages/106644). The downside of this is that you should authorize docker with your GitHub account as described [here](https://help.github.com/en/github/managing-packages-with-github-packages/configuring-docker-for-use-with-github-packages#authenticating-to-github-packages).  
+
+### Running locally with docker compose
+The app also has a `docker-compose` file which includes the setup of the postgres database. To fire up the app, run these commands:
+
+- [Install docker](https://docs.docker.com/install/)
+- run: `docker-compose build`
+- run: `docker-compose up`
+- run: `docker-compose run --rm web bin/rake db:create db:migrate`
+- visit: [http://localhost:9393/admin](http://localhost:9393/admin)
 
 ## IMS Certification Suite
 To run the tool against the certification suite, you need an IMS account and run the tool on a public url with SSL. At Drieam we use [ngrok](http://ngrok.io/) to expose our localhost:
