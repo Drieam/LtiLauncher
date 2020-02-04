@@ -119,6 +119,8 @@ This app has a `Dockerfile` file to simplify the hosting setup. The `Dockerfile`
 - **DOMAIN** The base domain of the app (for example `lti-launcher.com`).
 - **FORCE_SSL** Set to `1` if the app runs on a secured endpoint.
 - **PORT** Optionally change the port the container listens to (default 9393).
+- **ADMIN_USER** Username used to login to the admin interface (default `admin`)
+- **ADMIN_PASSWORD** Password used to login to the admin interface (default on development is `test`)
  
 Once the app is fired up, you need to make sure to run the database migrations. So not only the first time you start the app but every time the version has changed since there could be new migrations. To run the migrations you should run `bin/rake db:migrate` inside the container.
 
