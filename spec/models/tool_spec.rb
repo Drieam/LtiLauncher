@@ -5,6 +5,9 @@ require 'rails_helper'
 RSpec.describe Tool, type: :model do
   describe 'database' do
     it { is_expected.to have_db_column(:id).of_type(:uuid).with_options(null: false) }
+    it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
+    it { is_expected.to have_db_column(:description).of_type(:string).with_options(null: true) }
+    it { is_expected.to have_db_column(:icon_url).of_type(:string).with_options(null: true) }
     it { is_expected.to have_db_column(:auth_server_id).of_type(:uuid).with_options(null: false, foreign_key: true) }
     it { is_expected.to have_db_column(:client_id).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:open_id_connect_initiation_url).of_type(:string).with_options(null: false) }
@@ -21,6 +24,7 @@ RSpec.describe Tool, type: :model do
 
   describe 'validations' do
     subject { build :tool }
+    it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:client_id) }
     it { is_expected.to validate_presence_of(:open_id_connect_initiation_url) }
     it { is_expected.to validate_presence_of(:target_link_uri) }
@@ -30,7 +34,7 @@ RSpec.describe Tool, type: :model do
         .for(:open_id_connect_initiation_url)
     end
     it do
-      is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar')
+      is_expected.to_not allow_value(nil, '', 'foobar.com', 'webcal://foobar.com/foobar')
         .for(:open_id_connect_initiation_url)
     end
     it do
@@ -38,8 +42,16 @@ RSpec.describe Tool, type: :model do
         .for(:target_link_uri)
     end
     it do
-      is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar')
+      is_expected.to_not allow_value(nil, '', 'foobar.com', 'webcal://foobar.com/foobar')
         .for(:target_link_uri)
+    end
+    it do
+      is_expected.to allow_value(nil, '', 'https://foo.bar/foobar', 'http://localhost:8000')
+        .for(:icon_url)
+    end
+    it do
+      is_expected.to_not allow_value('foobar.com', 'webcal://foobar.com/foobar')
+        .for(:icon_url)
     end
   end
 
@@ -75,6 +87,18 @@ RSpec.describe Tool, type: :model do
 
       it 'sets the target_link_uri query parameter' do
         expect(query_params.fetch('target_link_uri')).to eq tool.target_link_uri
+      end
+    end
+    describe '#launch_url' do
+      let(:tool) { build_stubbed :tool, client_id: 'foo-bar' }
+      it 'returns the base launch url' do
+        expect(tool.launch_url).to eq 'http://localhost:8383/launch/foo-bar'
+      end
+    end
+    describe '#attributes' do
+      let(:tool) { build :tool }
+      it 'includes the launch_url key' do
+        expect(tool.attributes).to have_key 'launch_url'
       end
     end
   end

@@ -15,6 +15,7 @@ auth0_auth_server = AuthServer.create!(
 # Tool for certification suite
 auth0_auth_server.tools.create!(
   id: 'a0f3de21-8f3b-48ae-a7a6-30185a91a956',
+  name: 'IMS Certification',
   client_id: 'cert',
   open_id_connect_initiation_url: 'https://ltiadvantagevalidator.imsglobal.org/ltiplatform/oidcinitialize.html',
   target_link_uri: 'https://ltiadvantagevalidator.imsglobal.org/ltiplatform/oidcredirecturl.html'
@@ -36,6 +37,7 @@ if ENV.key?('SURF_OIDC_CLIENT_SECRET')
 
   surf_auth_server.tools.create!(
     id: 'ee9bea7c-189e-4236-813e-66e88287e2a8',
+    name: 'IMS Reference Implementation',
     client_id: 'lti-ri',
     open_id_connect_initiation_url: 'https://lti-ri.imsglobal.org/lti/tools/710/login_initiations',
     target_link_uri: 'https://lti-ri.imsglobal.org/lti/tools/710/deep_link_launches'

@@ -12,6 +12,9 @@ class ToolDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     auth_server: Field::BelongsTo,
     id: Field::String,
+    name: Field::String,
+    description: Field::Text,
+    icon_url: Field::String,
     client_id: Field::String,
     open_id_connect_initiation_url: Field::String,
     target_link_uri: Field::String,
@@ -26,6 +29,7 @@ class ToolDashboard < Administrate::BaseDashboard
   # By default, it's limited to four items to reduce clutter on index pages.
   # Feel free to add, remove, or rearrange items.
   COLLECTION_ATTRIBUTES = %i[
+    name
     client_id
     target_link_uri
     auth_server
@@ -36,6 +40,9 @@ class ToolDashboard < Administrate::BaseDashboard
   SHOW_PAGE_ATTRIBUTES = %i[
     auth_server
     id
+    name
+    description
+    icon_url
     client_id
     open_id_connect_initiation_url
     target_link_uri
@@ -49,6 +56,9 @@ class ToolDashboard < Administrate::BaseDashboard
   # on the model's form (`new` and `edit`) pages.
   FORM_ATTRIBUTES = %i[
     auth_server
+    name
+    description
+    icon_url
     client_id
     open_id_connect_initiation_url
     target_link_uri
@@ -70,6 +80,6 @@ class ToolDashboard < Administrate::BaseDashboard
   # across all pages of the admin dashboard.
 
   def display_resource(tool)
-    tool.client_id
+    tool.name
   end
 end
