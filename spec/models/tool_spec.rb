@@ -20,6 +20,7 @@ RSpec.describe Tool, type: :model do
 
   describe 'relations' do
     it { is_expected.to belong_to(:auth_server).inverse_of(:tools) }
+    it { is_expected.to have_many(:nonces).inverse_of(:tool).dependent(:delete_all) }
   end
 
   describe 'validations' do

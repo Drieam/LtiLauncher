@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_04_122725) do
+ActiveRecord::Schema.define(version: 2020_02_07_081734) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -39,6 +39,14 @@ ActiveRecord::Schema.define(version: 2020_02_04_122725) do
     t.index ["jwk_kid"], name: "index_keypairs_on_jwk_kid"
   end
 
+  create_table "nonces", id: false, force: :cascade do |t|
+    t.uuid "tool_id", null: false
+    t.string "key", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["tool_id", "key"], name: "index_nonces_on_tool_id_and_key", unique: true
+  end
+
   create_table "tools", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "auth_server_id", null: false
     t.string "client_id", null: false
@@ -53,5 +61,6 @@ ActiveRecord::Schema.define(version: 2020_02_04_122725) do
     t.index ["client_id"], name: "index_tools_on_client_id", unique: true
   end
 
+  add_foreign_key "nonces", "tools"
   add_foreign_key "tools", "auth_servers"
 end

@@ -2,6 +2,7 @@
 
 class Tool < ApplicationRecord
   belongs_to :auth_server, inverse_of: :tools
+  has_many :nonces, inverse_of: :tool, dependent: :delete_all
 
   validates :name, presence: true
   validates :client_id, presence: true, uniqueness: true
