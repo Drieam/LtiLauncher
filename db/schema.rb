@@ -40,10 +40,11 @@ ActiveRecord::Schema.define(version: 2020_02_07_081734) do
   end
 
   create_table "nonces", id: false, force: :cascade do |t|
+    t.uuid "tool_id", null: false
     t.string "key", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["key"], name: "index_nonces_on_key", unique: true
+    t.index ["tool_id", "key"], name: "index_nonces_on_tool_id_and_key", unique: true
   end
 
   create_table "tools", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -60,5 +61,6 @@ ActiveRecord::Schema.define(version: 2020_02_07_081734) do
     t.index ["client_id"], name: "index_tools_on_client_id", unique: true
   end
 
+  add_foreign_key "nonces", "tools"
   add_foreign_key "tools", "auth_servers"
 end

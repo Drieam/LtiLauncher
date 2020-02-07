@@ -52,7 +52,7 @@ class LaunchesController < ApplicationController
     if params.fetch(:login_hint) != cookies[:login_hint]
       raise Launch::InvalidError, 'open id connect flow could not be validated'
     end
-    raise Launch::InvalidError, 'nonce is used before' unless Nonce.verify(params.fetch(:nonce))
+    raise Launch::InvalidError, 'nonce is used before' unless Nonce.verify(tool, params.fetch(:nonce))
 
     # Prepare the launch
     @launch = Launch.new(tool: tool, context: login_hint.fetch('context'))

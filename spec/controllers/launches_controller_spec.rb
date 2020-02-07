@@ -198,13 +198,28 @@ RSpec.describe LaunchesController, type: :controller do
       it { is_expected.to respond_with 422 }
       it { expect(response.body).to eq 'Invalid launch since nonce is used before' }
     end
-    context 'when noce already used' do
-      before { Nonce.verify(params[:nonce]) }
+    context 'when nonce already used by current tool' do
+      before { Nonce.verify(tool, params[:nonce]) }
       before { request.cookies[:login_hint] = login_hint }
       before { get :auth, params: params }
       it { is_expected.to respond_with 422 }
       it { expect(response.body).to eq 'Invalid launch since nonce is used before' }
       it { expect(assigns(:launch)).to eq nil }
+    end
+    context 'when nonce already used by other tool' do
+      before { Nonce.verify(create(:tool), params[:nonce]) }
+      before { request.cookies[:login_hint] = login_hint }
+      before { get :auth, params: params }
+      it { is_expected.to respond_with 200 }
+      it 'sets the launch instance variable' do
+        expect(assigns(:launch)).to be_a Launch
+      end
+      it 'sets the correct tool on the launch' do
+        expect(assigns(:launch).target_link_uri).to eq tool.target_link_uri
+      end
+      it 'sets the context on the launch' do
+        expect(assigns(:launch).payload).to include login_hint_payload[:context]
+      end
     end
   end
 end
