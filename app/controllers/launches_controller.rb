@@ -38,18 +38,25 @@ class LaunchesController < ApplicationController
     redirect_to URI(tool.signed_open_id_connect_initiation_url(login_hint: login_hint)).to_s
   end
 
-  def auth
+  def auth # rubocop:todo Metrics/AbcSize, Metrics/MethodLength
     # Parse and validate the login hint
-    login_hint = Keypair.jwt_decode(params[:login_hint])
+    login_hint = Keypair.jwt_decode(params.fetch(:login_hint))
 
     # Find the requested tool based on the login hint
     tool = Tool.find_by!(client_id: login_hint.fetch('tool_client_id'))
 
-    # raise 'Security Error, TOOL_TARGET_LINK_URI != redirect_uri' if TOOL_TARGET_LINK_URI != params['redirect_uri']
-    # raise 'Security Error, params[:login_hint] != cookies[:login_hint]' if params[:login_hint] != cookies[:login_hint]
-    # # TODO: check nonce is not used before
+    # Perform launch validations
+    if params.fetch(:redirect_uri) != tool.target_link_uri
+      raise Launch::InvalidError, 'redirect_uri does not match tool setting'
+    end
+    if params.fetch(:login_hint) != cookies[:login_hint]
+      raise Launch::InvalidError, 'open id connect flow could not be validated'
+    end
+    raise Launch::InvalidError, 'nonce is used before' unless Nonce.verify(params.fetch(:nonce))
 
     # Prepare the launch
     @launch = Launch.new(tool: tool, context: login_hint.fetch('context'))
+  rescue Launch::InvalidError => e
+    render plain: "Invalid launch since #{e.message}", status: :unprocessable_entity
   end
 end

@@ -1,6 +1,14 @@
 # frozen_string_literal: true
 
 class Launch
+  class InvalidError < StandardError
+    attr_accessor :message
+
+    def initialize(message)
+      self.message = message
+    end
+  end
+
   # The context requires to have a sub key since that should originate from the OIDC flow
   def initialize(tool:, context:)
     @tool = tool

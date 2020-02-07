@@ -161,9 +161,10 @@ RSpec.describe LaunchesController, type: :controller do
       }
     end
 
-    before { get :auth, params: params }
-
     context 'with valid params' do
+      before { request.cookies[:login_hint] = login_hint }
+      before { get :auth, params: params }
+      it { is_expected.to respond_with 200 }
       it 'sets the launch instance variable' do
         expect(assigns(:launch)).to be_a Launch
       end
@@ -173,6 +174,37 @@ RSpec.describe LaunchesController, type: :controller do
       it 'sets the context on the launch' do
         expect(assigns(:launch).payload).to include login_hint_payload[:context]
       end
+    end
+    context 'when redirect_uri does not match target_link_uri' do
+      before { request.cookies[:login_hint] = login_hint }
+      let(:invalid_params) { params.merge(redirect_uri: 'https://invalid.com/redirected') }
+      before { get :auth, params: invalid_params }
+      it { is_expected.to respond_with 422 }
+      it { expect(response.body).to eq 'Invalid launch since redirect_uri does not match tool setting' }
+      it { expect(assigns(:launch)).to eq nil }
+    end
+    context 'when login_hint does not match login_hint cookie' do
+      let!(:invalid_login_hint) { Keypair.jwt_encode(login_hint_payload.merge(tool_client_id: '0')) }
+      before { request.cookies[:login_hint] = invalid_login_hint }
+      before { get :auth, params: params }
+      it { is_expected.to respond_with 422 }
+      it { expect(response.body).to eq 'Invalid launch since open id connect flow could not be validated' }
+      it { expect(assigns(:launch)).to eq nil }
+    end
+    context 'when request is retried' do
+      before { request.cookies[:login_hint] = login_hint }
+      before { get :auth, params: params }
+      before { get :auth, params: params }
+      it { is_expected.to respond_with 422 }
+      it { expect(response.body).to eq 'Invalid launch since nonce is used before' }
+    end
+    context 'when noce already used' do
+      before { Nonce.verify(params[:nonce]) }
+      before { request.cookies[:login_hint] = login_hint }
+      before { get :auth, params: params }
+      it { is_expected.to respond_with 422 }
+      it { expect(response.body).to eq 'Invalid launch since nonce is used before' }
+      it { expect(assigns(:launch)).to eq nil }
     end
   end
 end
