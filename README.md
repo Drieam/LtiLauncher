@@ -7,29 +7,32 @@ Administrators can log in on the admin interface of the launcher via fixed [basi
 In this interface, the administrators can manage and add the available tools and set up the [OIDC](https://openid.net/connect/) server. The main setup of a platform will, therefore, consist of:
 
 - **name** Name of the platform
-- **open_id_connect_service_url** The main URL of the OIDC server
-- **open_id_client_id** The registered client id
-- **public_key_url** The URL with a list of the allowed public keys for signing the context parameter(s). The canvas LMS has a [nice example](https://canvas.instructure.com/api/lti/security/jwks) of such an endpoint.
+- **openid_configuration_url** The well known configuration url of the OIDC server. The app will extract all relevant settings from that endpoint.
+- **client_id** The registered client id
+- **client_secret** The registered client secret
+- **context_jwks_url** The URL with a list of the allowed public keys for signing the context parameter(s). The canvas LMS has a [nice example](https://canvas.instructure.com/api/lti/security/jwks) of such an endpoint.
 
 For each tool, the launcher requires:
 
+- **auth_server** Select to what auth server this tool will be linked
 - **name** Name of the tool
+- **description** Description of the tool
+- **icon_url** URL to an icon that can be shown in the platform
 - **client_id** Unique identifier of the tool
-- **public_key** / **public_key_url** / **public_jwk** So any of these to validate the JWTs of the tool.
 - **open_id_connect_initiation_url** The URL to start the OIDC flow.
 - **target_link_uri** The URL to perform the final launch at.
-- **icon_url** Some icon that will be shown in the platform.
 
-The available tools will be made available through an endpoint per platform. This will look something like:
+The available tools per auth server are made available through a JSON endpoint that looks like this:
 
 ```
-https://<platform_name>.lti-launcher.com/api/v1/tools
+https://<domain>/api/v1/auth_servers/<auth_server_uid>/tools
 
 [
   {
     name: '<tool_name>',
-    url: 'https://<platform_name>.lti-launcher.com/launch/<tool_client_id>',
-    icon_url: '<tool_icon_url>'
+    description: '<tool_description>',
+    icon_url: '<tool_icon_url>',
+    url: 'https://<domain>/launch/<tool_client_id>'
   },
   ...
 ]
@@ -51,27 +54,27 @@ The platform fetches the available tools from the endpoint and shows those links
 ```
 
 This will result in a link on the platform like this:
-`https://<platform_name>.lti-launcher.com/launch/<tool_client_id>?context=xxx.xxx.xxx`. If the user clicks this link, the tool will open in either the current window or a new tab (so not in an iframe) and this is where the launcher kicks in.
+`https://<domain>/launch/<tool_client_id>?context=xxx.xxx.xxx`. If the user clicks this link, the tool will open in either the current window or a new tab (so not in an iframe) and this is where the launcher kicks in.
 
 ### Launch flow
 1. The user navigates to the launcher specifying the platform, the tool, and optional additional context
 
-       https://<platform_name>.lti-launcher.com/launch/<tool_client_id>?context=xxx.xxx.xxx
+       https://<domain>/launch/<tool_client_id>?context=xxx.xxx.xxx
        
 2. The user gets redirected to the OIDC service matching the platform
 
-       http://oidc.service/auth
+       http://<auth_service_oidc_authorization_endpoint>
          ?response_type=id_token
          &state=<jwt containing the original url from step 1>
-         &client_id=<platform_open_id_client_id>
-         &redirect_uri=https://<platform_name>.lti-launcher.com/callback
+         &client_id=<auth_service_open_id_client_id>
+         &redirect_uri=https://<domain>/callback
          &scope=profile
 
 3. The user logs in if needed and allows the launcher to access the user's data
 
 4. The user gets redirected back to the launcher (specified `redirect_uri`)
 
-       https://<platform_name>.lti-launcher.com/callback
+       https://<domain>/callback
          ?id_token=<User information as specified by OIDC>
          &state=<State as provided in step 2>
          &....?
@@ -81,12 +84,12 @@ This will result in a link on the platform like this:
        <tool_open_id_connect_initiation_url>
          ?client_id=<tool_client_id>
          &login_hint=<login_hint>
-         &iss=lti_launcher.com
+         &iss=<issuer as defined in the secrets>
          &target_link_uri=<tool_target_link_uri>
          
 6. The tool generates a state, saves this in a cookie and redirects the user to the launcher auth URL (tool should know this based on the `iss` parameter)
 
-       https://<platform_name>.lti-launcher.com/auth
+       https://<domain>/auth
          ?scope=openid
          &response_type=id_token
          &client_id=<tool_client_id>
@@ -119,7 +122,9 @@ This app has a `Dockerfile` file to simplify the hosting setup. The `Dockerfile`
 - **DOMAIN** The base domain of the app (for example `lti-launcher.com`).
 - **FORCE_SSL** Set to `1` if the app runs on a secured endpoint.
 - **PORT** Optionally change the port the container listens to (default 9393).
+- **ISSUER** Sets the `iss` key in the open id initiation (default `lti_launcher`) 
 - **ADMIN_USER** Username used to login to the admin interface (default `admin`)
+- **ADMIN_PASSWORD_FILE** Location of the file with the password used to login to the admin interface. If this is not set, it will fallback to the **ADMIN_PASSWORD**.
 - **ADMIN_PASSWORD** Password used to login to the admin interface (default on development is `test`)
  
 Once the app is fired up, you need to make sure to run the database migrations. So not only the first time you start the app but every time the version has changed since there could be new migrations. To run the migrations you should run `bin/rake db:migrate` inside the container.
