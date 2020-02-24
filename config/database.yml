@@ -84,6 +84,6 @@ test:
 #
 production:
   <<: *default
-  database: lti_launcher_production
-  username: lti_launcher
+  database: <%= ENV.fetch('DATABASE_DATABSE', 'lti_launcher_production') %>
+  username: <%= ENV.fetch('DATABASE_USERNAME', 'lti_launcher') %>
   password: <%= ENV['LTI_LAUNCHER_DATABASE_PASSWORD'] %>
