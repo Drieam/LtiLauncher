@@ -124,6 +124,7 @@ This app has a `Dockerfile` file to simplify the hosting setup. The `Dockerfile`
 - **PORT** Optionally change the port the container listens to (default 9393).
 - **ISSUER** Sets the `iss` key in the open id initiation (default `lti_launcher`) 
 - **ADMIN_USER** Username used to login to the admin interface (default `admin`)
+- **ADMIN_PASSWORD_FILE** Location of the file with the password used to login to the admin interface. If this is not set, it will fallback to the **ADMIN_PASSWORD**.
 - **ADMIN_PASSWORD** Password used to login to the admin interface (default on development is `test`)
  
 Once the app is fired up, you need to make sure to run the database migrations. So not only the first time you start the app but every time the version has changed since there could be new migrations. To run the migrations you should run `bin/rake db:migrate` inside the container.
