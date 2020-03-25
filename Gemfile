@@ -16,7 +16,7 @@ gem 'puma', '~> 4.1'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 # Admin interface
-gem 'administrate', '~> 0.12.0'
+gem 'administrate', '~> 0.13.0'
 # JSON Web Tokens
 gem 'jwt', '~> 2.2.1'
 # HTTP/REST API client library.
