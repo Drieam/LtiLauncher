@@ -21,4 +21,6 @@ Rails.application.routes.draw do
   get '/auth', to: 'launches#auth', format: :html
   post '/oauth2/token', to: 'oauth2_tokens#create', format: :json
   resources :keypairs, only: :index, format: :json
+
+  root to: 'admin/tools#index'
 end
