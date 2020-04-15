@@ -17,7 +17,7 @@ jobs:
       - name: Setup Ruby
         uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.7
+          ruby-version: 2.7.1
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client
@@ -48,7 +48,7 @@ jobs:
       - name: Setup Ruby
         uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.7
+          ruby-version: 2.7.1
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client
@@ -93,7 +93,7 @@ jobs:
       - name: Setup Ruby
         uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.7
+          ruby-version: 2.7.1
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client
@@ -115,4 +115,4 @@ jobs:
           RAILS_ENV: test
         run: |
           bin/rake db:setup
-          bundle exec rspec
+          bundle exec rspec --format RSpec::Github::Formatter
