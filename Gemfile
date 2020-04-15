@@ -3,7 +3,6 @@
 ruby '2.7'
 
 source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 6.0.2', '>= 6.0.2.1'
@@ -11,10 +10,6 @@ gem 'rails', '~> 6.0.2', '>= 6.0.2.1'
 gem 'pg', '>= 0.18', '< 2.0'
 # Use Puma as the app server
 gem 'puma', '~> 4.3'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-# gem 'jbuilder', '~> 2.7'
-# Use Active Model has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
 # Admin interface
 gem 'administrate', '~> 0.13.0'
 # JSON Web Tokens
@@ -30,7 +25,9 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   # Testing framework
-  gem 'rspec-rails', '~> 4.0.0.beta3'
+  gem 'rspec-rails'
+  # RSpec formatter for github actions
+  gem 'rspec-github'
   # Helpers to test rails controllers
   gem 'rails-controller-testing'
   # RSpec matchers

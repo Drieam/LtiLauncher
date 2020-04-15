@@ -115,4 +115,4 @@ jobs:
           RAILS_ENV: test
         run: |
           bin/rake db:setup
-          bundle exec rspec
+          bundle exec rspec --format RSpec::Github::Formatter
