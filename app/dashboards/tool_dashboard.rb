@@ -20,7 +20,7 @@ class ToolDashboard < Administrate::BaseDashboard
     target_link_uri: Field::String,
     created_at: Field::DateTime,
     updated_at: Field::DateTime,
-    launches: LaunchesField
+    launch_url: LaunchesField
   }.freeze
 
   # COLLECTION_ATTRIBUTES
@@ -48,7 +48,7 @@ class ToolDashboard < Administrate::BaseDashboard
     target_link_uri
     created_at
     updated_at
-    launches
+    launch_url
   ].freeze
 
   # FORM_ATTRIBUTES
