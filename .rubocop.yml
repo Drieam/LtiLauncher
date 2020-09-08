@@ -3,6 +3,7 @@ require:
   - rubocop-rails
 
 AllCops:
+  NewCops: enable
   Exclude:
     - app.rb
     - db/schema.rb

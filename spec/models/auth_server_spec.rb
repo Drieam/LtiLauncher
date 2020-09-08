@@ -94,7 +94,7 @@ RSpec.describe AuthServer, type: :model do
       end
       context 'when valid url' do
         context 'and valid response' do
-          let(:new_url) { FFaker::Internet.uri('https') + '/.well-known/openid-configuration' }
+          let(:new_url) { "#{FFaker::Internet.uri('https')}/.well-known/openid-configuration" }
           let!(:request_stub) do
             stub_request(:get, new_url)
               .to_return(
@@ -117,7 +117,7 @@ RSpec.describe AuthServer, type: :model do
           end
         end
         context 'and random response' do
-          let(:new_url) { FFaker::Internet.uri('https') + '/.well-known/openid-configuration' }
+          let(:new_url) { "#{FFaker::Internet.uri('https')}/.well-known/openid-configuration" }
           let!(:request_stub) do
             stub_request(:get, new_url)
               .to_return(body: { foo: 'bar' }.to_json)
@@ -134,7 +134,7 @@ RSpec.describe AuthServer, type: :model do
           end
         end
         context 'and failing response' do
-          let(:new_url) { FFaker::Internet.uri('https') + '/.well-known/openid-configuration' }
+          let(:new_url) { "#{FFaker::Internet.uri('https')}/.well-known/openid-configuration" }
           let!(:request_stub) do
             stub_request(:get, new_url)
               .to_return(status: 500, body: 'HELP!')
@@ -218,7 +218,7 @@ RSpec.describe AuthServer, type: :model do
         expect(query_params.fetch('response_type')).to eq 'code'
       end
       it 'sets the nonce query parameter' do
-        uuid_regex = /[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/
+        uuid_regex = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
         expect(query_params.fetch('nonce')).to match(uuid_regex)
       end
       it 'sets the state query parameter' do

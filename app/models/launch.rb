@@ -6,6 +6,7 @@ class Launch
 
     def initialize(message)
       self.message = message
+      super
     end
   end
 

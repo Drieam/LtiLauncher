@@ -3,7 +3,7 @@
 # Copied from https://gist.github.com/elbartostrikesagain/6644608
 
 RSpec::Matchers.define :have_attr_encrypted do |attribute|
-  encrypted_attribute = ('encrypted_' + attribute.to_s)
+  encrypted_attribute = "encrypted_#{attribute}"
 
   match do |model|
     model.respond_to?(attribute) &&
