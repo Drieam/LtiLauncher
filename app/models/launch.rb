@@ -6,6 +6,7 @@ class Launch
 
     def initialize(message)
       self.message = message
+      super
     end
   end
 
@@ -31,7 +32,7 @@ class Launch
 
   ##
   # Returns the raw content of the lti launch
-  def payload # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+  def payload # rubocop:disable Metrics/MethodLength
     @payload ||= {
       # String that indicates the type of the sender's LTI message
       # http://www.imsglobal.org/spec/lti/v1p3/#message-type-claim

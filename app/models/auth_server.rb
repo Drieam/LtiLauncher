@@ -4,12 +4,12 @@ class AuthServer < ApplicationRecord
   has_many :tools, inverse_of: :auth_server, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
-  validates :openid_configuration_url, format: URI.regexp(%w[http https]), allow_blank: true
-  validates :authorization_endpoint, presence: true, format: URI.regexp(%w[http https])
-  validates :token_endpoint, presence: true, format: URI.regexp(%w[http https])
+  validates :openid_configuration_url, format: URI::DEFAULT_PARSER.make_regexp(%w[http https]), allow_blank: true
+  validates :authorization_endpoint, presence: true, format: URI::DEFAULT_PARSER.make_regexp(%w[http https])
+  validates :token_endpoint, presence: true, format: URI::DEFAULT_PARSER.make_regexp(%w[http https])
   validates :client_id, presence: true
   validates :client_secret, presence: true
-  validates :context_jwks_url, presence: true, format: URI.regexp(%w[http https])
+  validates :context_jwks_url, presence: true, format: URI::DEFAULT_PARSER.make_regexp(%w[http https])
   validate { errors.add(:openid_configuration_url, :fetch_failed) if @configuration_fetch_failed }
 
   ##

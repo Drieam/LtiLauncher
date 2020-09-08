@@ -6,9 +6,9 @@ class Tool < ApplicationRecord
 
   validates :name, presence: true
   validates :client_id, presence: true, uniqueness: true
-  validates :open_id_connect_initiation_url, presence: true, format: URI.regexp(%w[http https])
-  validates :target_link_uri, presence: true, format: URI.regexp(%w[http https])
-  validates :icon_url, format: URI.regexp(%w[http https]), allow_blank: true
+  validates :open_id_connect_initiation_url, presence: true, format: URI::DEFAULT_PARSER.make_regexp(%w[http https])
+  validates :target_link_uri, presence: true, format: URI::DEFAULT_PARSER.make_regexp(%w[http https])
+  validates :icon_url, format: URI::DEFAULT_PARSER.make_regexp(%w[http https]), allow_blank: true
 
   ##
   # Get the redirection url for the OIDC validation cycle of the tool.
