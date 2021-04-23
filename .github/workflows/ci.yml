@@ -4,33 +4,14 @@ jobs:
   brakeman:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions/cache@v1
-        id: cache
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-bundler-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bundler-
+      - name: Check out code
+        uses: actions/checkout@v2
 
       - name: Setup Ruby
-        uses: eregon/use-ruby-action@master
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.0.1
-
-      # required to compile pg ruby gem
-      - name: install PostgreSQL client
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: sudo apt-get install libpq-dev
-
-      - name: Install gems
-        run: |
-          gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" --no-doc
-          bundle config specific_platform x86_64-linux
-          bundle config --local build.sassc --disable-march-tune-native
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
+          bundler-cache: true
 
       - name: Run brakeman
         run: bundle exec brakeman
@@ -38,33 +19,14 @@ jobs:
   rubocop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions/cache@v1
-        id: cache
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-bundler-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bundler-
+      - name: Check out code
+        uses: actions/checkout@v2
 
       - name: Setup Ruby
-        uses: eregon/use-ruby-action@master
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.0.1
-
-      # required to compile pg ruby gem
-      - name: install PostgreSQL client
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: sudo apt-get install libpq-dev
-
-      - name: Install gems
-        run: |
-          gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" --no-doc
-          bundle config specific_platform x86_64-linux
-          bundle config --local build.sassc --disable-march-tune-native
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
+          bundler-cache: true
 
       - name: Run rubocop
         run: bundle exec rubocop
@@ -73,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:11
+        image: postgres:12
         ports:
           # will assign a random free host port
           - 5432/tcp
@@ -86,33 +48,14 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
 
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions/cache@v1
-        id: cache
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-bundler-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-bundler-
+      - name: Check out code
+        uses: actions/checkout@v2
 
       - name: Setup Ruby
-        uses: eregon/use-ruby-action@master
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.0.1
-
-      # required to compile pg ruby gem
-      - name: install PostgreSQL client
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: sudo apt-get install libpq-dev
-
-      - name: Install gems
-        run: |
-          gem install bundler -v "$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" --no-doc
-          bundle config specific_platform x86_64-linux
-          bundle config --local build.sassc --disable-march-tune-native
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
+          bundler-cache: true
 
       - name: Run RSpec
         env:
