@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Nonce, type: :model do
   describe 'database' do
-    it { is_expected.to have_db_column(:tool_id).of_type(:uuid).with_options(null: false, foreign_key: true) }
+    it { is_expected.to have_db_column(:tool_id).of_type(:uuid).with_options(null: false) }
     it { is_expected.to have_db_column(:key).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:created_at).of_type(:datetime).with_options(null: false) }
     it { is_expected.to have_db_column(:updated_at).of_type(:datetime).with_options(null: false) }

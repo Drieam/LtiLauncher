@@ -299,7 +299,7 @@ RSpec.describe AuthServer, type: :model do
             .to_return(body: 'HELP', status: 500)
         end
         it 'raises an error' do
-          expect { auth_server.exchange_code(code) }.to raise_error Faraday::ClientError
+          expect { auth_server.exchange_code(code) }.to raise_error Faraday::ServerError
         end
       end
     end

@@ -60,7 +60,7 @@ RSpec.describe JwkUrlLoader do
         end
 
         it 'raises error' do
-          expect { url_loader.call({}) }.to raise_error Faraday::ClientError
+          expect { url_loader.call({}) }.to raise_error Faraday::ServerError
         end
       end
 

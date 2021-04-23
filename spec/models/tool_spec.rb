@@ -8,7 +8,7 @@ RSpec.describe Tool, type: :model do
     it { is_expected.to have_db_column(:name).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:description).of_type(:string).with_options(null: true) }
     it { is_expected.to have_db_column(:icon_url).of_type(:string).with_options(null: true) }
-    it { is_expected.to have_db_column(:auth_server_id).of_type(:uuid).with_options(null: false, foreign_key: true) }
+    it { is_expected.to have_db_column(:auth_server_id).of_type(:uuid).with_options(null: false) }
     it { is_expected.to have_db_column(:client_id).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:open_id_connect_initiation_url).of_type(:string).with_options(null: false) }
     it { is_expected.to have_db_column(:target_link_uri).of_type(:string).with_options(null: false) }

@@ -9,12 +9,15 @@ services:
       - db
     environment:
       RAILS_ENV: production
-      DOMAIN: localhost:9393
+#      DOMAIN: localhost:9393
       SECRET_KEY_BASE: 1225e73f1f9f0030eb106db3b5807c46d2ed431487a7ba780af73f08aa3eaebfe47f840f12f55e7180c3464076a19bec8575ec8533a9cba16e9d276c0d3ac225
       DATABASE_URL: postgres://postgres:password@db
       ADMIN_PASSWORD: test
 
+      DOMAIN: lti-launcher.eu.ngrok.io
+      FORCE_SSL: 1
+
   db:
-    image: postgres:11-alpine
+    image: postgres:12-alpine
     environment:
       POSTGRES_PASSWORD: password
