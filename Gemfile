@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-ruby '2.7.1'
+ruby '3.0.1'
 
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.0.2', '>= 6.0.2.1'
+gem 'rails', '~> 6.1', '>= 6.1.3.1'
 # Use postgresql as the database for Active Record
 gem 'pg', '>= 0.18', '< 2.0'
 # Use Puma as the app server
-gem 'puma', '~> 4.3'
+gem 'puma', '~> 5.2'
 # Admin interface
-gem 'administrate', '~> 0.14.0'
+gem 'administrate', '~> 0.15'
 # JSON Web Tokens
-gem 'jwt', '~> 2.2.1'
+gem 'jwt', '~> 2.2'
 # HTTP/REST API client library.
-gem 'faraday_middleware', '~> 0.13.1'
+gem 'faraday_middleware', '~> 1.0'
 # Cache HTTP responses
 gem 'faraday-http-cache', '~> 2.0'
 # Generates attr_accessors that encrypt and decrypt attributes transparently

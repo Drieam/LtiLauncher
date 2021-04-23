@@ -17,7 +17,7 @@ jobs:
       - name: Setup Ruby
         uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.7.1
+          ruby-version: 3.0.1
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client
@@ -51,7 +51,7 @@ jobs:
       - name: Setup Ruby
         uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.7.1
+          ruby-version: 3.0.1
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client
@@ -99,7 +99,7 @@ jobs:
       - name: Setup Ruby
         uses: eregon/use-ruby-action@master
         with:
-          ruby-version: 2.7.1
+          ruby-version: 3.0.1
 
       # required to compile pg ruby gem
       - name: install PostgreSQL client

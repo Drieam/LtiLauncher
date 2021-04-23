@@ -1,4 +1,4 @@
-FROM ruby:2.7.1-alpine
+FROM ruby:3.0.1-alpine
 
 # Set Rails environment to production
 ENV RAILS_ENV production
@@ -10,8 +10,8 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 
 # Install libraries
-RUN gem install bundler:2.1.4 \
-    && apk add --update build-base postgresql-dev tzdata # nodejs
+RUN gem install bundler:2.2.16 \
+    && apk add --update build-base postgresql-dev tzdata
 
 # Install gems
 COPY Gemfile Gemfile.lock $APP_HOME/
