@@ -28,3 +28,6 @@ Metrics/BlockLength:
 Lint/AmbiguousBlockAssociation:
   Exclude:
     - 'spec/**/*.rb' # Expect change blocks are ok
+
+Style/OpenStructUse:
+  Enabled: false
