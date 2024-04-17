@@ -10,7 +10,7 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 
 # Install libraries
-RUN gem install bundler:2.2.16 \
+RUN gem install bundler:2.2.33 \
     && apk add --update build-base postgresql-dev tzdata
 
 # Install gems
