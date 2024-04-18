@@ -18,6 +18,8 @@ gem 'jwt', '~> 2.8'
 gem 'faraday_middleware', '~> 1.0'
 # Cache HTTP responses
 gem 'faraday-http-cache', '~> 2.5'
+# OpenStruct is a data structure
+gem 'ostruct', '~> 0.6'
 # Generates attr_accessors that encrypt and decrypt attributes transparently
 gem 'attr_encrypted', '~> 4.0'
 
