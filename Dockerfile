@@ -1,4 +1,4 @@
-FROM ruby:3.0.3-alpine
+FROM ruby:3.1.4-alpine
 
 # Set Rails environment to production
 ENV RAILS_ENV production
