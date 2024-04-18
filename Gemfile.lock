@@ -71,7 +71,7 @@ GEM
       sassc-rails (~> 2.1)
       selectize-rails (~> 0.6)
     ast (2.4.2)
-    attr_encrypted (3.1.0)
+    attr_encrypted (4.0.0)
       encryptor (~> 3.0.0)
     base64 (0.2.0)
     bindex (0.8.1)
@@ -294,7 +294,7 @@ PLATFORMS
 
 DEPENDENCIES
   administrate (~> 0.20)
-  attr_encrypted (~> 3.1)
+  attr_encrypted (~> 4.0)
   brakeman
   byebug
   database_cleaner

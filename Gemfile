@@ -19,7 +19,7 @@ gem 'faraday_middleware', '~> 1.0'
 # Cache HTTP responses
 gem 'faraday-http-cache', '~> 2.5'
 # Generates attr_accessors that encrypt and decrypt attributes transparently
-gem 'attr_encrypted', '~> 3.1'
+gem 'attr_encrypted', '~> 4.0'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
