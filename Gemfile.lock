@@ -127,7 +127,7 @@ GEM
     faraday-retry (1.0.3)
     faraday_middleware (1.2.0)
       faraday (~> 1.0)
-    ffaker (2.20.0)
+    ffaker (2.23.0)
     ffi (1.15.5)
     globalid (1.1.0)
       activesupport (>= 5.0)
