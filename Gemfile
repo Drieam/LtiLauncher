@@ -13,7 +13,7 @@ gem 'puma', '~> 6.4'
 # Admin interface
 gem 'administrate', '~> 0.15'
 # JSON Web Tokens
-gem 'jwt', '~> 2.2'
+gem 'jwt', '~> 2.8'
 # HTTP/REST API client library.
 gem 'faraday_middleware', '~> 1.0'
 # Cache HTTP responses
