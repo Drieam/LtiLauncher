@@ -23,7 +23,7 @@ class AuthServer < ApplicationRecord
       response = faraday_connection.get(new_url).body
       self.authorization_endpoint = response.authorization_endpoint
       self.token_endpoint = response.token_endpoint
-    rescue NoMethodError, URI::Error, Faraday::Error => _e
+    rescue NoMethodError, URI::Error, Faraday::Error, Addressable::URI::InvalidURIError => _e
       @configuration_fetch_failed = true
     end
   end
