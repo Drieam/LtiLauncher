@@ -11,7 +11,7 @@ gem 'pg', '>= 0.18', '< 2.0'
 # Use Puma as the app server
 gem 'puma', '~> 6.4'
 # Admin interface
-gem 'administrate', '~> 0.15'
+gem 'administrate', '~> 0.20'
 # JSON Web Tokens
 gem 'jwt', '~> 2.8'
 # HTTP/REST API client library.
