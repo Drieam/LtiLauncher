@@ -100,7 +100,7 @@ GEM
     factory_bot_rails (6.4.3)
       factory_bot (~> 6.4)
       railties (>= 5.0.0)
-    faraday (1.9.3)
+    faraday (1.10.3)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
@@ -115,11 +115,11 @@ GEM
     faraday-em_http (1.0.0)
     faraday-em_synchrony (1.0.0)
     faraday-excon (1.1.0)
-    faraday-http-cache (2.2.0)
+    faraday-http-cache (2.5.1)
       faraday (>= 0.8)
     faraday-httpclient (1.0.1)
-    faraday-multipart (1.0.3)
-      multipart-post (>= 1.2, < 3)
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
     faraday-net_http (1.0.1)
     faraday-net_http_persistent (1.2.0)
     faraday-patron (1.0.0)
@@ -164,7 +164,7 @@ GEM
     minitest (5.22.3)
     momentjs-rails (2.29.1.1)
       railties (>= 3.1)
-    multipart-post (2.1.1)
+    multipart-post (2.4.0)
     nio4r (2.7.1)
     nokogiri (1.16.4)
       mini_portile2 (~> 2.8.2)
@@ -304,7 +304,7 @@ DEPENDENCIES
   byebug
   database_cleaner
   factory_bot_rails
-  faraday-http-cache (~> 2.0)
+  faraday-http-cache (~> 2.5)
   faraday_middleware (~> 1.0)
   ffaker
   jwt (~> 2.8)
