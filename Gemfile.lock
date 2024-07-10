@@ -185,7 +185,6 @@ GEM
       net-smtp
     marcel (1.0.4)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.6)
     minitest (5.22.3)
     multipart-post (2.4.0)
     mutex_m (0.2.0)
@@ -199,12 +198,11 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.1)
-    nokogiri (1.16.5)
-      mini_portile2 (~> 2.8.2)
+    nokogiri (1.16.5-x86_64-linux)
       racc (~> 1.4)
     ostruct (0.6.0)
-    parallel (1.24.0)
-    parser (3.3.1.0)
+    parallel (1.25.1)
+    parser (3.3.4.0)
       ast (~> 2.4.1)
       racc
     pg (1.5.6)
@@ -262,8 +260,8 @@ GEM
     regexp_parser (2.9.2)
     reline (0.5.2)
       io-console (~> 0.5)
-    rexml (3.2.8)
-      strscan (>= 3.0.9)
+    rexml (3.3.1)
+      strscan
     rspec-core (3.13.0)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.0)
@@ -283,13 +281,13 @@ GEM
       rspec-mocks (~> 3.13)
       rspec-support (~> 3.13)
     rspec-support (3.13.1)
-    rubocop (1.64.0)
+    rubocop (1.65.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.8, < 3.0)
+      regexp_parser (>= 2.4, < 3.0)
       rexml (>= 3.2.5, < 4.0)
       rubocop-ast (>= 1.31.1, < 2.0)
       ruby-progressbar (~> 1.7)
@@ -348,7 +346,7 @@ GEM
     zeitwerk (2.6.13)
 
 PLATFORMS
-  ruby
+  x86_64-linux
 
 DEPENDENCIES
   administrate (~> 0.20)
