@@ -32,18 +32,21 @@ class AuthServer < ApplicationRecord
   # Get the redirection url for the initial step of authorizing the current user.
   # The provided state_payload should be returned by the auth server.
   # In this way you can keep the state of that single launch (obviously).
+  # rubocop:disable Metrics/MethodLength
   def authorize_url(state_payload:)
     URI(authorization_endpoint).tap do |uri|
       uri.query = {
         client_id: client_id,
         redirect_uri: Rails.application.routes.url_helpers.launch_callback_url,
-        scope: 'openid profile email phone address',
+        scope: 'openid',
+        claims: '{"id_token":{"name":null,"email":null}}',
         response_type: 'code',
         state: Keypair.jwt_encode(state_payload),
         nonce: SecureRandom.uuid
       }.to_query
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   ##
   # Exchanges the authorization_code for an access token and id_token.

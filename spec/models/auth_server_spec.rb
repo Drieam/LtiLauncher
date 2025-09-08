@@ -200,6 +200,7 @@ RSpec.describe AuthServer, type: :model do
           client_id
           redirect_uri
           scope
+          claims
           response_type
           state
           nonce
@@ -212,7 +213,10 @@ RSpec.describe AuthServer, type: :model do
         expect(query_params.fetch('redirect_uri')).to eq 'http://localhost:8383/callback'
       end
       it 'sets the scope query parameter' do
-        expect(query_params.fetch('scope')).to eq 'openid profile email phone address'
+        expect(query_params.fetch('scope')).to eq 'openid'
+      end
+      it 'sets the claims query parameter' do
+        expect(query_params.fetch('claims')).to eq '{"id_token":{"name":null,"email":null}}'
       end
       it 'sets the response_type query parameter' do
         expect(query_params.fetch('response_type')).to eq 'code'
