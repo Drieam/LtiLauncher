@@ -45,7 +45,7 @@ RSpec.describe Launch, type: :model do
         subject { described_class.new(tool: tool, context: context).payload }
 
         it 'returns a hash with indifferent access' do
-          expect(subject).to be_a HashWithIndifferentAccess
+          expect(subject).to be_a ActiveSupport::HashWithIndifferentAccess
         end
         it 'returns the correct keys' do
           expect(subject.keys).to match_array(
