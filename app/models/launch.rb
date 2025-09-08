@@ -20,9 +20,7 @@ class Launch
 
   ##
   # Returns the url used to perform the launch to (form post)
-  def target_link_uri
-    @tool.target_link_uri
-  end
+  delegate :target_link_uri, to: :@tool
 
   ##
   # Returns the JWT encoded payload
