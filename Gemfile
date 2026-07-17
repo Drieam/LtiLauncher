@@ -15,7 +15,7 @@ gem 'administrate', '~> 0.20'
 # JSON Web Tokens
 gem 'jwt', '~> 2.8'
 # HTTP/REST API client library.
-gem 'faraday_middleware', '~> 1.0'
+gem 'faraday_middleware', '~> 1.2'
 # Cache HTTP responses
 gem 'faraday-http-cache', '~> 2.5'
 # OpenStruct is a data structure
