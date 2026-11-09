@@ -1,4 +1,8 @@
 # Lti Launcher
+
+> [!WARNING]
+> This repository is no longer maintained. It will not receive updates, bug fixes or security patches. Issues and pull requests will not be addressed.
+
 An extraction layer to simplify the setup and launching of LTI tools. In the most basic form, the launcher launches the requested tool in the context of the logged-in user. The logged-in user is fetched from a [OIDC](https://openid.net/connect/) server. Other contexts (like course / assignment) should be provided by the platform through a signed [JWT](https://jwt.io/) in the query parameter of the request.
 
 ### Setup flow
